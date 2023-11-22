@@ -19,3 +19,6 @@ def twoToPowOfN(n: int):
 print(twoToPowOfN(4))
 
 print(f'{1//2}')
+
+
+print(f'{math.inf}')

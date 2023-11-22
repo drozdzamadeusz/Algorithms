@@ -8,18 +8,31 @@ class TreeNode:
         self.right = right
 
 
-class Solution:
-    def depthFirstValues(self, root: Optional[TreeNode]):
-        if not root:
-            return []
+# Recursive method:
+# class Solution:
+#     def treeSum(self, root: Optional[TreeNode]):
+#         if not root:
+#             return 0
 
-        res = []
+#         left = self.treeSum(root.left)
+#         right = self.treeSum(root.right)
+
+#         return root.val + left + right
+
+
+# Iterative method
+class Solution:
+    def treeSum(self, root: Optional[TreeNode]):
+        if not root:
+            return 0
+
+        sum = 0
         queue = [root]
 
         while len(queue) > 0:
             curr = queue.pop(0)
 
-            res.append(curr.val)
+            sum += curr.val
 
             if curr.left:
                 queue.append(curr.left)
@@ -27,9 +40,7 @@ class Solution:
             if curr.right:
                 queue.append(curr.right)
 
-        return res
-
-# Recursive method -> Needs a queue, so it's not worth implementing a recursive method. I'd be really difficult to have correct order.
+        return sum
 
 #       1
 #      / \
@@ -51,4 +62,4 @@ tree3 = TreeNode(1, TreeNode(2), TreeNode(3))
 
 
 sol = Solution()
-print(sol.depthFirstValues(tree1))
+print(sol.treeSum(tree1))

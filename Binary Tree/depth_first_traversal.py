@@ -9,7 +9,7 @@ class TreeNode:
 
 ## Iterative method:
 # class Solution:
-#     def depthFirstValues(self, root: Optional[TreeNode]):
+#     def depthFirstTraversal(self, root: Optional[TreeNode]):
 #         if not root:
 #             return []
 
@@ -34,12 +34,12 @@ class TreeNode:
 
 # Recursive method:
 class Solution:
-    def depthFirstValues(self, root: Optional[TreeNode]):
+    def depthFirstTraversal(self, root: Optional[TreeNode]):
         if not root:
             return []
 
-        leftVals = self.depthFirstValues(root.left)
-        rightVals = self.depthFirstValues(root.right)
+        leftVals = self.depthFirstTraversal(root.left)
+        rightVals = self.depthFirstTraversal(root.right)
 
         return [root.val] + leftVals + rightVals
 
@@ -63,4 +63,4 @@ tree3 = TreeNode(1, TreeNode(2), TreeNode(3))
 
 
 sol = Solution()
-print(sol.depthFirstValues(tree1))
+print(sol.depthFirstTraversal(tree1))
