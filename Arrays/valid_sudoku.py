@@ -16,7 +16,7 @@ def isValidSudoku(board: List[List[str]]) -> bool:
 
             if (curr_num in rows_chars[r] or
                 curr_num in cols_chars[c] or
-                curr_num in boxes_chars[(r // 3, c // 3)]):
+                curr_num in boxes_chars[r // 3, c // 3]):
                 return False
 
             rows_chars[r].add(curr_num)
