@@ -9,7 +9,7 @@ class TreeNode:
 
 
 class Solution:
-    def breadfthirstTraversal(self, root: Optional[TreeNode]):
+    def breadthFirstTraversal(self, root: Optional[TreeNode]):
         if not root:
             return []
 
@@ -52,4 +52,4 @@ tree3 = TreeNode(1, TreeNode(2), TreeNode(3))
 
 
 sol = Solution()
-print(sol.breadfthirstTraversal(tree1))
+print(sol.breadthFirstTraversal(tree1))
