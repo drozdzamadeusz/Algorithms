@@ -35,4 +35,4 @@ tree1 = TreeNode(1, TreeNode(2, TreeNode(17), TreeNode(4)),
 
 
 sol = Solution()
-print(sol.pathSum(tree1, 20))
+print(sol.invertTree(tree1, 20))
