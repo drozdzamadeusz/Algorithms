@@ -63,4 +63,4 @@ tree3 = TreeNode(1, TreeNode(2), TreeNode(3))
 
 
 sol = Solution()
-print(sol.inorderTraversal(tree3))
+print(sol.inorderTraversal(tree1))
