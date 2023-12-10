@@ -8,36 +8,38 @@ class TreeNode:
         self.right = right
 
 
-# class Solution:
-#     def postorderTraversal(self, root: Optional[TreeNode]):
-#         if not root:
-#             return []
-
-#         res = []
-#         stack = [root]
-
-#         while len(stack) > 0:
-#             curr = stack.pop()
-#             res.append(curr.val)
-
-#             if curr.left:
-#                 stack.append(curr.left)
-
-#             if curr.right:
-#                 stack.append(curr.right)
-
-#         return res[::-1]
-
 class Solution:
     def postorderTraversal(self, root: Optional[TreeNode]):
         if not root:
             return []
+
+        res = []
+        stack = [(root, False)]
+
+        while len(stack) > 0:
+            curr, visited = stack.pop()
+
+            if curr:
+                if visited:
+                    res.append(curr.val)
+                else:
+                    stack.append((curr, True))
+                    stack.append((curr.right, False))
+                    stack.append((curr.left, False))
+
+
+        return res
+
+# class Solution:
+#     def postorderTraversal(self, root: Optional[TreeNode]):
+#         if not root:
+#             return []
         
 
-        l = self.postorderTraversal(root.left)
-        r = self.postorderTraversal(root.right)
+#         l = self.postorderTraversal(root.left)
+#         r = self.postorderTraversal(root.right)
 
-        return l + r + [root.val]
+#         return l + r + [root.val]
 
 
 #       1
@@ -46,7 +48,7 @@ class Solution:
 #    / \   \
 #   3   4   6
 tree1 = TreeNode(1, TreeNode(2, TreeNode(3), TreeNode(4)),
-                 TreeNode(5, TreeNode(6)))
+                 TreeNode(5, right=TreeNode(6)))
 
 
 #       1
