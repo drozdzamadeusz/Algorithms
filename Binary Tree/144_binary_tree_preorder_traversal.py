@@ -16,8 +16,10 @@ class Solution:
         res = []
         stack = [root]
 
+
         while len(stack) > 0:
             curr = stack.pop()
+
             res.append(curr.val)
 
             if curr.right:
@@ -27,6 +29,14 @@ class Solution:
                 stack.append(curr.left)
 
         return res
+
+
+# class Solution:
+#     def preorderTraversal(self, root: Optional[TreeNode]):
+#         if not root:
+#             return []
+        
+#         return [root.val] + self.preorderTraversal(root.left) + self.preorderTraversal(root.right)
 
 
 #       1

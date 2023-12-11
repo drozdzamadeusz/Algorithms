@@ -1,4 +1,5 @@
-from typing import Optional
+
+from typing import Deque, Optional
 
 
 class TreeNode:
@@ -14,10 +15,10 @@ class Solution:
             return []
 
         res = []
-        queue = [root]
+        queue = Deque([root])
 
         while len(queue) > 0:
-            curr = queue.pop(0)
+            curr = queue.popleft()
 
             res.append(curr.val)
 

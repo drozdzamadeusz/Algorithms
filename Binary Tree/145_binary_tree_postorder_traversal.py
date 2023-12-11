@@ -42,24 +42,18 @@ class Solution:
 #         return l + r + [root.val]
 
 
-#       1
+#       6
 #      / \
-#     2   5
+#     3   5
 #    / \   \
-#   3   4   6
-tree1 = TreeNode(1, TreeNode(2, TreeNode(3), TreeNode(4)),
-                 TreeNode(5, right=TreeNode(6)))
-
-
-#       1
-tree2 = TreeNode(1)
-
-
-#       1
-#      / \
-#     2   3
-tree3 = TreeNode(1, TreeNode(2), TreeNode(3))
-
+#   1   2   4
+tree1 = TreeNode(val=6,
+                 left=TreeNode(val=3,
+                               left=TreeNode(1),
+                               right=TreeNode(2)),
+                 right=TreeNode(val=5,
+                                left=None,
+                                right=TreeNode(4)))
 
 sol = Solution()
 print(sol.postorderTraversal(tree1))

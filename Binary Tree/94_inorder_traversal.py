@@ -41,25 +41,31 @@ class Solution:
             curr = curr.right
 
         return res
+    
+
+# class Solution:
+#     def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+#         if not root:
+#             return []
+        
+#         return self.inorderTraversal(root.left) + [root.val] + self.inorderTraversal(root.right)
 
 
-#       1
+
+#       4
 #      / \
 #     2   5
 #    / \   \
-#   3   4   6
-tree1 = TreeNode(1, TreeNode(2, TreeNode(3), TreeNode(4)),
-                 TreeNode(5, TreeNode(6)))
+#   1   3   6
+tree1 = TreeNode(val=4,
+                 left=TreeNode(val=3,
+                               left=TreeNode(1),
+                               right=TreeNode(3)),
+                 right=TreeNode(val=5,
+                                left=None,
+                                right=TreeNode(6)))
 
 
-#       1
-tree2 = TreeNode(1)
-
-
-#       1
-#      / \
-#     2   3
-tree3 = TreeNode(1, TreeNode(2), TreeNode(3))
 
 
 sol = Solution()
