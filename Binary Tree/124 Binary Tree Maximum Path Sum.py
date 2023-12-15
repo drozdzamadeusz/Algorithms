@@ -9,50 +9,40 @@ class TreeNode:
         self.right = right
 
 
-# class Solution:
-#     def maxPathSum(self, root: Optional[TreeNode]) -> bool:
-
-#         def max_sum_path(node: Optional[TreeNode], max_sum: Optional[int], sum_path: Optional[int]):
-#             if not node:
-#                 return max_sum
-
-#             if not max_sum:
-#                 max_sum = node.val
-#                 sum_path = node.val
-#             else:
-#                 sum_path += node.val
-
-#                 if sum_path > max_sum:
-#                     max_sum = sum_path
-
-#             maxL = max_sum_path(node.left, max_sum, sum_path)
-#             maxR = max_sum_path(node.right, max_sum, sum_path)
-
-#             return max(maxL, maxR)
-
-#         return root.val + max_sum_path(root.left, None, None) + max_sum_path(root.right, None, None)
-
-
 class Solution:
     def maxPathSum(self, root: Optional[TreeNode]) -> int:
-        ans = -math.inf
-
-        def maxPathSumDownFrom(root: Optional[TreeNode]) -> int:
-            nonlocal ans
+        def maxPath(root: Optional[TreeNode], maxEnded: int):
 
             if not root:
-                return 0
+                return [0, maxEnded]
 
-            l = max(0, maxPathSumDownFrom(root.left))
-            r = max(0, maxPathSumDownFrom(root.right))
+            if root.val and not root.left and not root.right:
+                return [root.val, max(maxEnded, root.val)]
 
-            ans = max(ans, root.val + l + r)
-            
-            return root.val + max(l, r)
+            lNode = maxPath(root.left, maxEnded)
+            rNode = maxPath(root.right, maxEnded)
 
-        maxPathSumDownFrom(root)
-        return ans
+            lVal, rVal = max(0, lNode[0]), max(0, rNode[0])
+            lMax, rVal = lNode[1], rNode[1]
 
+            path = root.val + max(lVal, rVal)
+            newMaxEnded = max(lMax, rVal, root.val + lVal + rVal)
+
+            return [path, newMaxEnded]
+
+        return maxPath(root, -math.inf)[1]
+    
+
+
+
+
+tree = TreeNode(val=1,
+                left=TreeNode(val=2,
+                              left=TreeNode(val=8,
+                                            left=TreeNode(4),
+                                            right=TreeNode(6)),
+                              right=TreeNode(10)),
+                right=TreeNode(3))
 
 
 tree2 = TreeNode(val=1,
@@ -78,12 +68,12 @@ tree2 = TreeNode(val=1,
 #       3
 #      / \
 #     1   4
-tree1 = TreeNode(val=3,
+tree3 = TreeNode(val=3,
                  left=TreeNode(val=1),
                  right=TreeNode(val=4))
 
 
-tree3 = TreeNode(val=2,
+tree4 = TreeNode(val=2,
                  left=None,
                  right=TreeNode(val=4,
                                 left=TreeNode(10),
@@ -93,4 +83,4 @@ tree3 = TreeNode(val=2,
 
 
 sol = Solution()
-print(sol.maxPathSum(tree2))
+print(sol.maxPathSum(tree))
