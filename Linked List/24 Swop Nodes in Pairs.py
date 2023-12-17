@@ -18,7 +18,7 @@ class Solution:
 
         while c:
             tmp = c.next
-            
+
             # If prev is None, set prev to current and move forward
             if not prev:
                 c, prev = tmp, c
@@ -41,18 +41,17 @@ class Solution:
 
 
 def printList(head: ListNode):
-    i = 0
-    while head and i < 4:
+    while head:
         print(head.val, end=" ")
         head = head.next
-        i += 1
     print()
 
 
 l = ListNode(val=1,
              next=ListNode(val=2,
                            next=ListNode(val=3,
-                                         next=ListNode(val=4))))
+                                         next=ListNode(val=4,
+                                                       next=ListNode(5)))))
 
 sol = Solution().swapPairs(l)
 printList(sol)
