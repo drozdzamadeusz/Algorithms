@@ -9,21 +9,21 @@ class TreeNode:
 
 
 class Solution:
-    def pathSum(self, root: TreeNode, summ: int) -> int:
+    def pathSum(self, root: TreeNode, targetNum: int) -> int:
         if not root:
             return 0
 
-        def path_from(root: TreeNode, summ: int) -> int:
+        def path_from(root: TreeNode, target: int) -> int:
             if not root:
                 return 0
             
-            return (summ == root.val) + \
-                path_from(root.left, summ - root.val) + \
-                path_from(root.right, summ - root.val)
+            return (target == root.val) + \
+                path_from(root.left, target - root.val) + \
+                path_from(root.right, target - root.val)
 
-        return path_from(root, summ) + \
-            self.pathSum(root.left, summ) + \
-            self.pathSum(root.right, summ)
+        return path_from(root, targetNum) + \
+            self.pathSum(root.left, targetNum) + \
+            self.pathSum(root.right, targetNum)
 
 
 tree1 = TreeNode(val=10,
