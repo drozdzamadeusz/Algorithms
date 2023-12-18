@@ -30,6 +30,33 @@ class Solution:
         visited = [False for _ in nums]
         return backtrack([], visited, -math.inf)
 
+# Better sol
+# class Solution:
+#     def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+
+#         def backtrack(path: List[int], start: int):
+#             res = [path]
+
+#             if len(path) == len(nums):
+#                 return res
+
+#             seen = set()  # Track elements added at this level, so only distinct numbers will be checked
+#             for i in range(start, len(nums)):
+#                 n = nums[i]
+
+#                 if n in seen:
+#                     continue
+
+#                 r = backtrack(path + [n], i + 1)
+#                 res.extend(r)
+
+#                 seen.add(n)
+
+#             return res
+
+#         return backtrack([], 0)
+
+
 
 sol = Solution()
 res = sol.subsetsWithDup([1, 2, 2])
