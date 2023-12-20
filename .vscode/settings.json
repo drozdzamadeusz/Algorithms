@@ -20,10 +20,11 @@
   },
   "code-runner.customCommand": "",
   "code-runner.executorMap": {
-    "python": "python \"$fileName\""
+    "javascript": "node",
+    "python": "python \"$internalDir$fileName\""
   },
   "code-runner.runInTerminal": true,
   "code-runner.enableAppInsights": false,
-  "code-runner.fileDirectoryAsCwd": true,
+  "code-runner.fileDirectoryAsCwd": false,
   "code-runner.clearPreviousOutput": false
 }
