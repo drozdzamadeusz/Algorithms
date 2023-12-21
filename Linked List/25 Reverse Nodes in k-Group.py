@@ -12,26 +12,27 @@ class Solution:
         if k <= 1:
             return head
 
+        # Helpers
+        def isH(i): return i % k == 0  # True if N is the head of a gr.
+        def isT(i): return i % k == k - 1  # True if N is the tail of a gr.
+        def isS(i): return i + 1 == k  # True if N is the start of the list.
 
-        isH = lambda i: i % k == 0  # True if n is group head
-        isT = lambda i: i % k == k - 1  # True if n is group tail
-        isS = lambda i: i + 1 == k  # True if n is list head
+        # Used for storing the head and tail of the group.
+        q = Deque([], maxlen=2)
 
-        q = Deque()
         c, p, i = head, None, 0
         while c:
             if isH(i):
                 q.append(c)  # Store group head
                 p = None
             elif isS(i):
-                head = c  # Set head to list start
+                head = c  # Start of the list: set head to current N
             elif isT(i):
-                q.popleft().next = c  # Retrieve group head
+                q.popleft().next = c  # Link the group head to current N
 
             # Reverse
             tmp = c.next
-            c.next = p
-            p = c
+            p, c.next = c, p
             c = tmp
 
             i += 1
@@ -39,16 +40,15 @@ class Solution:
         f = q.popleft()
         l = q.popleft() if q else None
 
-        f.next = l
-
         if not l:
             return head
+
+        f.next = l
 
         c, p = p, None
         while c:
             tmp = c.next
-            c.next = p
-            p = c
+            p, c.next = c, p
             c = tmp
 
         return head
