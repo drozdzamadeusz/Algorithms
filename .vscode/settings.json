@@ -20,7 +20,6 @@
   },
   "code-runner.customCommand": "",
   "code-runner.executorMap": {
-    "javascript": "node",
     "python": "python $internalDir"
   },
   "code-runner.runInTerminal": true,
