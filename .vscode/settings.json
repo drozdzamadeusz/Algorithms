@@ -21,10 +21,12 @@
   "code-runner.customCommand": "",
   "code-runner.executorMap": {
     "javascript": "node",
-    "python": "python \"$internalDir$fileName\""
+    "python": "pyt \"$internalDir$fileName\""
   },
   "code-runner.runInTerminal": true,
   "code-runner.enableAppInsights": false,
   "code-runner.fileDirectoryAsCwd": false,
-  "code-runner.clearPreviousOutput": false
+  "code-runner.clearPreviousOutput": false,
+  "code-runner.saveFileBeforeRun": true,
+  "code-runner.temporaryFileName": "tempCode",
 }
