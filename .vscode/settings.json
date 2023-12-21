@@ -21,7 +21,7 @@
   "code-runner.customCommand": "",
   "code-runner.executorMap": {
     "javascript": "node",
-    "python": "pyt \"$internalDir$fileName\""
+    "python": "python $internalDir"
   },
   "code-runner.runInTerminal": true,
   "code-runner.enableAppInsights": false,
