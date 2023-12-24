@@ -28,4 +28,5 @@
   "code-runner.clearPreviousOutput": false,
   "code-runner.saveFileBeforeRun": true,
   "code-runner.temporaryFileName": "tempCode",
+  "code-runner.ignoreSelection": true,
 }
