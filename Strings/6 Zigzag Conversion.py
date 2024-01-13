@@ -57,7 +57,7 @@ class Solution:
         if numRows < 2 or numRows >= len(s):
             return s
 
-        LEN, STEP = len(s), numRows + numRows - 2
+        LEN, STEP = len(s), (numRows - 1) * 2
         res = ""
 
         for row in range(numRows):
