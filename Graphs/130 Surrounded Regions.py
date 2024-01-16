@@ -4,8 +4,6 @@ from typing import Deque, List
 class Solution:
     def solve(self, board: List[List[str]]) -> None:
         ROWS, COLS = len(board), len(board[0])
-        direct = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-
         on_edge = set()
 
         for r in range(ROWS):
@@ -25,11 +23,8 @@ class Solution:
         def explore(row: int, col: int):
             excluded.add((row, col))
 
-            for dr, dc in direct:
-                r, c = row + dr, col + dc
-
-                if (
-                    r in range(ROWS)
+            for r, c in [(row + 1, col), (row - 1, col),(row, col + 1), (row, col - 1)]:
+                if (r in range(ROWS)
                     and c in range(COLS)
                     and board[r][c] == "O"
                     and (r, c) not in excluded
