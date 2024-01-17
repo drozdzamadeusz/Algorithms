@@ -13,27 +13,27 @@ class Solution:
 
         vis = set()
 
-        def travel(c: List):
-            for p in c:
-                if p in vis:
-                    return False
+        def travel(c: int):
+            if c in vis:
+                return False
+            
+            if graph[c] == []:
+                return True
                 
-                vis.add(p)
-                if not travel(graph[p]):
+            vis.add(c)
+            for p in graph[c]:
+                if not travel(p):
                     return False
-                vis.remove(p)
+            vis.remove(c)
 
+            graph[c] = [] # No cycle for course
             return True
 
-        # print(graph)
-
-        for c in graph:
-            vis.clear()
+        for c in range(len(graph)):
             if not travel(c):
                 return False
             
         return True
 
-
 sol = Solution()
-print(sol.canFinish(4, [[2,0],[1,0],[3,1],[3,2],[1,3]]))
+print(sol.canFinish(5, [[1,4],[2,4],[3,1],[3,2]]))
