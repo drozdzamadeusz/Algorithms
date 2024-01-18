@@ -9,7 +9,7 @@ class Solution:
         graph = [[] for _ in range(numCourses)]
 
         for c, p in prerequisites:
-            graph[p].append(c)
+            graph[c].append(p)
 
         vis = set()
 
