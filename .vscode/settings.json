@@ -33,6 +33,9 @@
   "gitlens.codeLens.symbolScopes": ["!Module"],
   "editor.formatOnType": true,
   "editor.wordBasedSuggestions": "off",
-  "editor.defaultFormatter": "ms-python.black-formatter"
+  "editor.defaultFormatter": "ms-python.black-formatter",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
 
 }
