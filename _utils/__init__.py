@@ -25,16 +25,16 @@ def equal(result, expected=None, header_prefix="", gap="   ") -> bool:
 
     if not expected:
         print(Text.formatHeader(ResultType.INFO, header_prefix))
-        # Text.printWithGap(Text.color(Text.bold("Result: "), 'blue'), gap)
-        Text.printWithGap(f'{result}\n', gap)
-        # Text.printWithGap(Text.color(Text.bold("No Expected data"), 'white'), gap)
+        Text.printWithGap(Text.color(Text.bold("Result: "), 'blue'), gap)
+        Text.printWithGap(result, gap)
+        # Text.printWithGap(Text.color(Text.bold("\nNo Expected data"), 'white'), gap)
         return True
 
     res = result == expected
 
     if res:
         print(Text.formatHeader(ResultType.PASSED, header_prefix))
-        Text.printWithGap(Text.color(Text.bold("Expected: "), 'green'), gap)
+        Text.printWithGap(Text.color(Text.bold("Result: "), 'green'), gap)
         Text.printWithGap(expected, gap)
     else:
         print(Text.formatHeader(ResultType.FAILED, header_prefix))
@@ -49,9 +49,9 @@ def equal(result, expected=None, header_prefix="", gap="   ") -> bool:
 class Text:
     results = {
         ResultType.DEFAULT: lambda text, prefix = "": Text.color(Text.bold(prefix + text), 'white'),
-        ResultType.PASSED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "✅ TEST PASSED"), 'green'),
-        ResultType.FAILED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "❌ TEST FILED"), 'red'),
-        ResultType.INFO: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "ℹ️  RESULT"), 'blue'),
+        ResultType.PASSED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "✅ PASSED"), 'green'),
+        ResultType.FAILED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "❌ FILED"), 'red'),
+        ResultType.INFO: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "ℹ️  NO TEST"), 'blue'),
     }
 
     @staticmethod
