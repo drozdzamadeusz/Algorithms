@@ -20,24 +20,28 @@ Color = Literal[
 ]
 
 
-def equal(output, expected=None, res_prefix="") -> bool:
+def equal(result, expected=None, header_prefix="", gap="   ") -> bool:
     Text.printWithGap("")
+
     if not expected:
-        print(Text.formatHeader(ResultType.INFO, res_prefix))
-        Text.printWithGap(output)
+        print(Text.formatHeader(ResultType.INFO, header_prefix))
+        # Text.printWithGap(Text.color(Text.bold("Result: "), 'blue'), gap)
+        Text.printWithGap(f'{result}\n', gap)
+        # Text.printWithGap(Text.color(Text.bold("No Expected data"), 'white'), gap)
         return True
 
-    res = output == expected
+    res = result == expected
 
     if res:
-        print(Text.formatHeader(ResultType.PASSED, res_prefix))
+        print(Text.formatHeader(ResultType.PASSED, header_prefix))
+        Text.printWithGap(Text.color(Text.bold("Expected: "), 'green'), gap)
+        Text.printWithGap(expected, gap)
     else:
-        print(Text.formatHeader(ResultType.FAILED, res_prefix))
-        Text.printWithGap(Text.color(Text.bold("Result: "), 'white'))
-        Text.printWithGap(f'{output}\n')
-
-    Text.printWithGap(Text.color(Text.bold("Expected: "), 'white'))
-    Text.printWithGap(f'{expected}\n')
+        print(Text.formatHeader(ResultType.FAILED, header_prefix))
+        Text.printWithGap(Text.color(Text.bold("Result: "), 'red'), gap)
+        Text.printWithGap(f'{result}\n', gap)
+        Text.printWithGap(Text.color(Text.bold("Expected: "), 'red'), gap)
+        Text.printWithGap(expected, gap)
 
     return res
 
@@ -47,7 +51,7 @@ class Text:
         ResultType.DEFAULT: lambda text, prefix = "": Text.color(Text.bold(prefix + text), 'white'),
         ResultType.PASSED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "✅ TEST PASSED"), 'green'),
         ResultType.FAILED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "❌ TEST FILED"), 'red'),
-        ResultType.INFO: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "ℹ️  RESULT:"), 'blue'),
+        ResultType.INFO: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "ℹ️  RESULT"), 'blue'),
     }
 
     @staticmethod
@@ -63,17 +67,26 @@ class Text:
         return Text.results[type](text, prefix)
 
     @staticmethod
-    def printWithGap(text): return print("   " + f'{text}')
+    def printWithGap(text, gap="   "): return print(f'{gap}{text}')
 
 
 class Test:
-    def __init__(self, numberOfTests) -> None:
-        self.numberOfTests = numberOfTests
-        self.counter = 0
+    def __init__(self) -> None:
+        self.tests = []
 
-    def getStatus(self):
-        self.counter = +1
-        return f'[{self.counter} / {self.numberOfTests}] '
+    def equal(self, result, expected=None, res_prefix="") -> bool:
+        GAP = '           '
+        return equal(result, expected, res_prefix, GAP)
 
-    def equal(self, input, expected):
-        return equal(input, expected, self.getStatus())
+    def getIndex(self, index):
+        return f'[{index} / {len(self.tests)}] '
+
+    def add(self, result, expected=None):
+        obj = {"result": result, "expected": expected}
+        self.tests.append(obj)
+
+    def run(self):
+        for idx, test in enumerate(self.tests):
+            result = test['result']
+            expacted = test['expected'] if 'expected' in test else None
+            self.equal(result, expacted, self.getIndex(idx + 1))

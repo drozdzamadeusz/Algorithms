@@ -53,5 +53,5 @@ class Solution:
 
 
 sol = Solution()
-equal(sol.rob([1, 2, 3, 1]), 4)
+equal(sol.rob([1, 2, 3, 1]))
 equal(sol.rob([2, 7, 9, 3, 1]), 12)
