@@ -49,9 +49,9 @@ def equal(result, expected=None, header_prefix="", gap="   ") -> bool:
 class Text:
     results = {
         ResultType.DEFAULT: lambda text, prefix = "": Text.color(Text.bold(prefix + text), 'white'),
-        ResultType.PASSED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "✅ PASSED"), 'green'),
-        ResultType.FAILED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "❌ FILED"), 'red'),
-        ResultType.INFO: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "ℹ️  NO TEST"), 'blue'),
+        ResultType.PASSED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "✅ TEST PASSED"), 'green'),
+        ResultType.FAILED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "❌ TEST FILED"), 'red'),
+        ResultType.INFO: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "ℹ️  NO EXPECTED RESULT"), 'blue'),
     }
 
     @staticmethod
@@ -75,11 +75,11 @@ class Test:
         self.tests = []
 
     def equal(self, result, expected=None, res_prefix="") -> bool:
-        GAP = '           '
+        GAP = '         '
         return equal(result, expected, res_prefix, GAP)
 
     def getIndex(self, index):
-        return f'[{index} / {len(self.tests)}] '
+        return f'[{index}/{len(self.tests)}] '
 
     def add(self, result, expected=None):
         obj = {"result": result, "expected": expected}
