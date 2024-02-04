@@ -1,11 +1,9 @@
-
 from _utils import Test
 
 
 class Solution:
     def longestPalindrome(self, s: str) -> str:
-        LEN = len(s)
-        res = ''
+        res, LEN = '', len(s)
 
         # Finds the longest palindrome by expanding around the center (l, r)
         def longest_pal(l: int, r: int) -> str:
