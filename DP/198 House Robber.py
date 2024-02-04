@@ -1,4 +1,5 @@
 from typing import List
+from _utils import equal
 
 
 class Solution:
@@ -20,4 +21,4 @@ class Solution:
 
 
 sol = Solution()
-print(sol.rob([1, 2, 7, 2, 1, 9]))
+equal(sol.rob([1, 2, 7, 2, 1, 9]), 17)
