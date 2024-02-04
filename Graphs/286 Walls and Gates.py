@@ -1,5 +1,5 @@
 from typing import Deque, List
-from test import Test
+from _utils import Test
 
 
 class Solution:

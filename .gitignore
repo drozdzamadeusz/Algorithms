@@ -1,2 +1,4 @@
 .DS_Store
-*/tempCode.py
+*tempCode.py
+*__pycache__
+*_venv
