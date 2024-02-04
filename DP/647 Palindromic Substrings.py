@@ -19,7 +19,9 @@ class Solution:
 
 
 sol = Solution()
+
 test = Test()
+
 test.add(sol.countSubstrings("abc"), 3)
 test.add(sol.countSubstrings("aaa"), 6)
 
