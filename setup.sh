@@ -10,4 +10,4 @@ source _venv/bin/activate
 pip install -e .
 
 
-echo -e "\033[1;32mSetup complete!\033[0m"
+echo -e "\n\033[1;32m✅ Setup complete!\033[0m"
