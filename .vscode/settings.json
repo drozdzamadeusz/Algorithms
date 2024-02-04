@@ -39,6 +39,8 @@
   },
   "[toml]": {
     "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
-
 }
