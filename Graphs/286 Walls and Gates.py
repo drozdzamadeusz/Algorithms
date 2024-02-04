@@ -45,10 +45,12 @@ val = sol.wallsAndGates(
         [0, -1, 2147483647, 2147483647],
     ]
 )
-Test = Test(2)
+Test = Test()
 expected = [[3, -1, 0, 1], [2, 2, 1, -1], [1, -1, 2, -1], [0, -1, 3, 4]]
-Test.equal(val, expected)
+Test.add(val, expected)
 
 val = sol.wallsAndGates([[-1]])
 expected = [[-1]]
-Test.equal(val, expected)
+Test.add(val, expected)
+
+Test.run()

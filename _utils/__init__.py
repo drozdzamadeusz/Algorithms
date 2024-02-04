@@ -2,91 +2,90 @@ from enum import Enum
 from typing import Literal
 from termcolor import colored
 
+UNSPECIFIED = "_UNSPECIFIED_"
+DEF_GAP = "   "
+BIG_GAP = "         "
 
-class ResultType(Enum):
+Color = Literal["red", "green", "yellow", "blue", "white", "grey"]
+
+
+class HeaderType(Enum):
     DEFAULT = 0
     FAILED = 1
     PASSED = 2
-    INFO = 3
+    NO_EXPECTED = 3
 
 
-Color = Literal[
-    "red",
-    "green",
-    "yellow",
-    "blue",
-    "magenta",
-    "white",
-]
+def equal(result, expect=UNSPECIFIED, headerPrefix="", gap=DEF_GAP) -> bool:
+    noExp = expect == UNSPECIFIED
+    passed = result == expect
 
+    resLine = Text.color(Text.bold("Result: "), 'grey') + f'{result}'
+    expLine = Text.color(Text.bold("Expect: "), 'grey') + f'{expect}'
 
-def equal(result, expected=None, header_prefix="", gap="   ") -> bool:
-    Text.printWithGap("")
+    headerType = HeaderType.FAILED
+    if passed: headerType = HeaderType.PASSED
+    if noExp: headerType = HeaderType.NO_EXPECTED
 
-    if not expected:
-        print(Text.formatHeader(ResultType.INFO, header_prefix))
-        Text.printWithGap(Text.color(Text.bold("Result: "), 'blue'), gap)
-        Text.printWithGap(result, gap)
-        # Text.printWithGap(Text.color(Text.bold("\nNo Expected data"), 'white'), gap)
-        return True
+    Text.printEOL()  # New line
+    Text.print(Text.header(headerType, headerPrefix))  # Header
+    Text.printWithGap(resLine, gap)  # "Result" line
 
-    res = result == expected
+    if not passed and not noExp:
+        Text.printWithGap(expLine, gap)  # "Expect" line
 
-    if res:
-        print(Text.formatHeader(ResultType.PASSED, header_prefix))
-        Text.printWithGap(Text.color(Text.bold("Result: "), 'green'), gap)
-        Text.printWithGap(expected, gap)
-    else:
-        print(Text.formatHeader(ResultType.FAILED, header_prefix))
-        Text.printWithGap(Text.color(Text.bold("Result: "), 'red'), gap)
-        Text.printWithGap(f'{result}\n', gap)
-        Text.printWithGap(Text.color(Text.bold("Expected: "), 'red'), gap)
-        Text.printWithGap(expected, gap)
-
-    return res
+    return passed or noExp
 
 
 class Text:
-    results = {
-        ResultType.DEFAULT: lambda text, prefix = "": Text.color(Text.bold(prefix + text), 'white'),
-        ResultType.PASSED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "✅ TEST PASSED"), 'green'),
-        ResultType.FAILED: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "❌ TEST FILED"), 'red'),
-        ResultType.INFO: lambda text, prefix = "": Text.color(Text.bold(prefix + text if text else prefix + "ℹ️  NO EXPECTED RESULT"), 'blue'),
+    headers = {
+        HeaderType.DEFAULT: lambda t, p = "": Text.bold(p + t),
+        HeaderType.PASSED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "✅ TEST PASSED"), 'green'),
+        HeaderType.FAILED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "❌ TEST FAILED"), 'red'),
+        HeaderType.NO_EXPECTED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "ℹ️  NO EXPECTED VALUE"), 'blue'),
     }
 
     @staticmethod
-    def bold(text):
+    def bold(text: str) -> str:
         return '\033[1m' + text + '\033[0m'
 
     @staticmethod
-    def color(text: object, color: Color):
+    def color(text: str, color: Color) -> str:
         return colored(text, color)
 
     @staticmethod
-    def formatHeader(type, prefix, text=""):
-        return Text.results[type](text, prefix)
+    def header(type: HeaderType, prefix="", customText="") -> str:
+        return Text.headers[type](customText, prefix)
 
     @staticmethod
-    def printWithGap(text, gap="   "): return print(f'{gap}{text}')
+    def printWithGap(text: str, gap=DEF_GAP) -> None:
+        return print(f'{gap}{text}')
+
+    @staticmethod
+    def printEOL() -> None:
+        return print('\r\n')
+
+    @staticmethod
+    def print(text: str) -> None:
+        return print(text)
 
 
 class Test:
     def __init__(self) -> None:
         self.tests = []
 
-    def equal(self, result, expected=None, res_prefix="") -> bool:
-        GAP = '         '
-        return equal(result, expected, res_prefix, GAP)
+    def __execute(self, result, expect, headerPrefix) -> bool:
+        return equal(result, expect, headerPrefix, BIG_GAP)
 
-    def getIndex(self, index):
+    def __getIndex(self, index) -> str:
         return f'[{index}/{len(self.tests)}] '
 
-    def add(self, result, expected=None):
-        obj = {"result": result, "expected": expected}
+    def add(self, result, expect=UNSPECIFIED) -> None:
+        obj = {"result": result, "expect": expect}
         self.tests.append(obj)
 
-    def run(self):
+    def run(self) -> None:
         for idx, test in enumerate(self.tests):
             result = test['result']
-            expacted = test['expected'] if 'expected' in test else None
-            self.equal(result, expacted, self.getIndex(idx + 1))
+            expact = test['expect']
+            self.__execute(result, expact, self.__getIndex(idx + 1))
