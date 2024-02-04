@@ -21,7 +21,8 @@ Color = Literal[
 
 
 def equal(output, expected=None, res_prefix="") -> bool:
-    if output != expected and not expected:
+    Text.printWithGap("")
+    if not expected:
         print(Text.formatHeader(ResultType.INFO, res_prefix))
         Text.printWithGap(output)
         return True
