@@ -5,7 +5,7 @@ In the root directory, execute:
 ```
 source setup.sh
 ```
-Then, choose the `_venv-alg` interpreter in your IDE.
+Then, choose `_venv-alg` interpreter in your IDE.
 
 ---
 
