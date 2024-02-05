@@ -36,13 +36,13 @@ class Solution:
 
         return find(0)
 
-
-t = Test(Solution().numDecodings)
-t.add(t.fun("12"), 2)
-t.add(t.fun("226"), 3)
-t.add(t.fun("06"), 0)
-t.add(t.fun("2134321412312322223"))
-t.add(t.fun("111111111111111111111111111111111111111111111"), 1836311903)
+fun = Solution().numDecodings
+t = Test()
+t.add(fun("12"), 2)
+t.add(fun("226"), 3)
+t.add(fun("06"), 0)
+t.add(fun("2134321412312322223"))
+t.add(fun("111111111111111111111111111111111111111111111"), 1836311903)
 t.run()
 
 
