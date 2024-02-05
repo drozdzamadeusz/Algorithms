@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Create a Python virtual environment
-python3 -m venv _venv
+python3 -m venv _venv-alg
 
 # Activate the virtual environment
-source _venv/bin/activate
+source _venv-alg/bin/activate
 
 # Install the current directory package in editable mode
 pip install -e .
