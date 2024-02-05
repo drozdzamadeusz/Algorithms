@@ -9,8 +9,12 @@ v = set([0, 0])
 # for vc, vr in v:
 #     print(vc, vr)
 
-for cc, cr in s:
-    if [cc, cr] in v:
-        continue
-    print(cc, cr)
+# for cc, cr in s:
+#     if [cc, cr] in v:
+#         continue
+#     print(cc, cr)
 
+
+
+if 1 == True:
+    print("ss")

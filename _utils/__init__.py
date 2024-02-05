@@ -42,7 +42,7 @@ class Text:
         HeaderType.DEFAULT: lambda t, p = "": Text.bold(p + t),
         HeaderType.PASSED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "✅ TEST PASSED"), 'green'),
         HeaderType.FAILED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "❌ TEST FAILED"), 'red'),
-        HeaderType.NO_EXPECTED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "ℹ️  NO EXPECTED VALUE"), 'blue'),
+        HeaderType.NO_EXPECTED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "ℹ️  EXPECTED UNKNOWN"), 'blue'),
     }
 
     @staticmethod
@@ -63,7 +63,7 @@ class Text:
 
     @staticmethod
     def printEOL() -> None:
-        return print('\r\n')
+        return print()
 
     @staticmethod
     def print(text: str) -> None:
@@ -71,7 +71,8 @@ class Text:
 
 
 class Test:
-    def __init__(self) -> None:
+    def __init__(self, fun = None) -> None:
+        self.fun = fun
         self.tests = []
 
     def __execute(self, result, expect, headerPrefix) -> bool:
