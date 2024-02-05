@@ -1,6 +1,6 @@
 # Setup
 
-To set up the project, execute `source setup.sh` in the root directory.<br>
+Execute `source setup.sh` in the root directory.<br>
 Then, choose the `_venv-alg` interpreter in your IDE.
 <br>
 <br>
