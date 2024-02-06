@@ -1,3 +1,6 @@
+import os
+import time
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, TimeoutError
 from enum import Enum
 from typing import Literal
 from termcolor import colored
@@ -5,6 +8,7 @@ from termcolor import colored
 UNSPECIFIED = "_UNSPECIFIED_"
 DEF_GAP = "   "
 BIG_GAP = "         "
+TIMEOUT = 2
 
 Color = Literal["red", "green", "yellow", "blue", "white", "grey"]
 
@@ -14,9 +18,10 @@ class HeaderType(Enum):
     FAILED = 1
     PASSED = 2
     NO_EXPECTED = 3
+    TIMEOUT = 3
 
 
-def equal(result, expect=UNSPECIFIED, headerPrefix="", gap=DEF_GAP) -> bool:
+def equal(result, expect=UNSPECIFIED, headerPrefix="", headerSuffix="", gap=DEF_GAP) -> bool:
     noExp = expect == UNSPECIFIED
     passed = result == expect
 
@@ -28,7 +33,7 @@ def equal(result, expect=UNSPECIFIED, headerPrefix="", gap=DEF_GAP) -> bool:
     if noExp: headerType = HeaderType.NO_EXPECTED
 
     Text.printEOL()  # New line
-    Text.print(Text.header(headerType, headerPrefix))  # Header
+    Text.print(Text.header(headerType, headerPrefix, headerSuffix))  # Header
     Text.printWithGap(resLine, gap)  # "Result" line
 
     if not passed and not noExp:
@@ -39,11 +44,16 @@ def equal(result, expect=UNSPECIFIED, headerPrefix="", gap=DEF_GAP) -> bool:
 
 class Text:
     headers = {
-        HeaderType.DEFAULT: lambda t, p = "": Text.bold(p + t),
-        HeaderType.PASSED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "✅ TEST PASSED"), 'green'),
-        HeaderType.FAILED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "❌ TEST FAILED"), 'red'),
-        HeaderType.NO_EXPECTED: lambda t, p = "": Text.color(Text.bold(p + t if t else p + "ℹ️  EXPECTED UNKNOWN"), 'blue'),
+        HeaderType.DEFAULT: lambda t, p="", s="": Text.bold(p + t + s),
+        HeaderType.PASSED: lambda t, p="", s="": Text.color(Text.bold(p + t + s if t else p + "✅ TEST PASSED" + s), 'green'),
+        HeaderType.FAILED: lambda t, p="", s="": Text.color(Text.bold(p + t + s if t else p + "❌ TEST FAILED" + s), 'red'),
+        HeaderType.NO_EXPECTED: lambda t, p="", s="": Text.color(Text.bold(p + t + s if t else p + "ℹ️  EXPECTED UNKNOWN" + s), 'blue'),
+        HeaderType.TIMEOUT: lambda t, p="", s="": Text.color(Text.bold(p + t + s if t else p + "⚠️ TEST TIMEOUT" + s), 'yellow'),
     }
+
+    @staticmethod
+    def normal(text: str) -> str:
+        return '\033[0m' + text + '\033[0m'
 
     @staticmethod
     def bold(text: str) -> str:
@@ -54,39 +64,53 @@ class Text:
         return colored(text, color)
 
     @staticmethod
-    def header(type: HeaderType, prefix="", customText="") -> str:
-        return Text.headers[type](customText, prefix)
+    def header(type: HeaderType, prefix="", sufix="", customText="") -> str:
+        return Text.headers[type](customText, prefix, sufix)
 
     @staticmethod
     def printWithGap(text: str, gap=DEF_GAP) -> None:
-        return print(f'{gap}{text}')
+        print(f'{gap}{text}', flush=True)
 
     @staticmethod
     def printEOL() -> None:
-        return print()
+        print(flush=True)
 
     @staticmethod
     def print(text: str) -> None:
-        return print(text)
+        print(text, flush=True)
 
 
 class Test:
-    def __init__(self, fun = None) -> None:
-        self.fun = fun
+    def __init__(self, fun=None) -> None:
+        self._fun = fun
         self.tests = []
 
-    def __execute(self, result, expect, headerPrefix) -> bool:
-        return equal(result, expect, headerPrefix, BIG_GAP)
+    def __execute(self, result, expect, headerPrefix, headerSuffix) -> bool:
+        return equal(result, expect, headerPrefix, headerSuffix, BIG_GAP)
 
     def __getIndex(self, index) -> str:
         return f'[{index}/{len(self.tests)}] '
 
-    def add(self, result, expect=UNSPECIFIED) -> None:
-        obj = {"result": result, "expect": expect}
-        self.tests.append(obj)
+    def equal(self, expect=UNSPECIFIED, *args, **kwargs) -> None:
+        self.tests.append((expect, args, kwargs))
 
     def run(self) -> None:
-        for idx, test in enumerate(self.tests):
-            result = test['result']
-            expact = test['expect']
-            self.__execute(result, expact, self.__getIndex(idx + 1))
+        idx = 1
+        for expect, args, kwargs in self.tests:
+            headerPrefix = self.__getIndex(idx)
+            start_time = time.time()
+
+            with ProcessPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(self._fun, *args, **kwargs)
+                try:
+                    result = future.result(timeout=TIMEOUT)
+                except TimeoutError:
+                    Text.print(Text.header(HeaderType.TIMEOUT, f'\n{headerPrefix}', Text.normal(
+                        Text.color(f' after {TIMEOUT} seconds', 'white'))))
+                    os._exit(1)
+
+            elapsedTime = (time.time() - start_time) * 1000
+            self.__execute(result, expect, headerPrefix, Text.normal(
+                Text.color(f' in {elapsedTime:.2f} ms', 'white')))
+
+            idx += 1

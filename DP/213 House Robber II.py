@@ -33,11 +33,12 @@ class Solution:
         return max(rob(1, LEN), rob(0, LEN - 1))
 
 
-sol = Solution()
-Test = Test()
+if __name__ == '__main__':
+    sol = Solution()
+    test = Test(sol.rob)
 
-Test.add(sol.rob([1, 2, 3, 1]), 4)
-Test.add(sol.rob([1, 2, 3, 1]), 4)
-Test.add(sol.rob([1, 2, 3]), 3)
+    test.equal(4, [1, 2, 3, 1])
+    test.equal(4, [1, 2, 3, 1])
+    test.equal(3, [1, 2, 3])
 
-Test.run()
+    test.run()

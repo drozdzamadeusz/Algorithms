@@ -25,9 +25,9 @@ class Solution:
 
         return res
 
-
-sol = Solution()
-test = Test()
-test.add(sol.longestPalindrome("babad"), "bab")
-test.add(sol.longestPalindrome("cbbd"), "bb")
-test.run()
+if __name__ == '__main__':
+    sol = Solution()
+    test = Test(sol.longestPalindrome)
+    test.equal( "bab", "babad",)
+    test.equal("bb", "cbbd")
+    test.run()

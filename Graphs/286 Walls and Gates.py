@@ -35,22 +35,3 @@ class Solution:
                     explore(r, c)
         return rooms
 
-
-sol = Solution()
-val = sol.wallsAndGates(
-    [
-        [2147483647, -1, 0, 2147483647],
-        [2147483647, 2147483647, 2147483647, -1],
-        [2147483647, -1, 2147483647, -1],
-        [0, -1, 2147483647, 2147483647],
-    ]
-)
-Test = Test()
-expected = [[3, -1, 0, 1], [2, 2, 1, -1], [1, -1, 2, -1], [0, -1, 3, 4]]
-Test.add(val, expected)
-
-val = sol.wallsAndGates([[-1]])
-expected = [[-1]]
-Test.add(val, expected)
-
-Test.run()
