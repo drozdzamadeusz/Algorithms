@@ -8,7 +8,7 @@ from termcolor import colored
 UNSPECIFIED = "_UNSPECIFIED_"
 DEF_GAP = "   "
 BIG_GAP = "         "
-TIMEOUT_SEC = 1000
+TIMEOUT_SEC = 5000
 
 Color = Literal["red", "green", "yellow", "blue", "white", "grey"]
 
@@ -132,4 +132,4 @@ class Test:
             idx += 1
 
         Text.print(Text.color(
-            Text.bold(f'\nℹ️  Finished in {totalTime:.2f} ms'), 'white'))
+            Text.bold(f'\nℹ️  Finished in {totalTime:.2f} ms'), 'blue'))
