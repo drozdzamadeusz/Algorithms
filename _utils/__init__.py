@@ -1,90 +1,41 @@
 import os
 import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, TimeoutError
-from enum import Enum
+from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from typing import Literal
-from termcolor import colored
+from _utils.TextBuilder import Gaps, TextBuilder
+from _utils.TextHeader import HeaderType, TextHeader
 
 UNSPECIFIED = "_UNSPECIFIED_"
+TIMEOUT_SEC = 5000
 DEF_GAP = "   "
 BIG_GAP = "         "
-TIMEOUT_SEC = 5000
-
 Color = Literal["red", "green", "yellow", "blue", "white", "grey"]
 
-
-class HeaderType(Enum):
-    DEFAULT = 0
-    FAILED = 1
-    PASSED = 2
-    NO_EXPECTED = 3
-    TIMEOUT = 3
+clearArgs = lambda args: (
+    str(args[1:])[1:-1].rstrip(',') if args[1:] else "None")
 
 
 def equal(result, expect=UNSPECIFIED, headerPrefix="", headerSuffix="", gap=DEF_GAP, *args) -> bool:
-    noExp = expect == UNSPECIFIED
+    noExpect = expect == UNSPECIFIED
     passed = result == expect
-    args = f'{args[1:]}'[1:-1] if len(args) > 1 else "None"
-    if args[-1] == ',': args = args[:-1]
+    argsStr = clearArgs(args)
+    headerType = TextHeader.parseHeaderType(passed, noExpect)
 
-    argsLine = Text.color(Text.bold("Args:   "), 'grey') + f'{args}'
-    resLine = Text.color(Text.bold("Result: "), 'grey') + f'{result}'
-    expLine = Text.color(Text.bold("Expect: "), 'grey') + f'{expect}'
+    argsLine = TextBuilder("Args:   ", True, 'grey', '', f'{argsStr}', BIG_GAP)
+    resLine = TextBuilder("Result: ", True, 'grey', '', f'{result}', BIG_GAP)
+    expLine = TextBuilder("Expect: ", True, 'grey', ''
+                          f'{expect if not noExpect else ""}', BIG_GAP)
 
-    headerType = HeaderType.FAILED
-    if passed: headerType = HeaderType.PASSED
-    if noExp: headerType = HeaderType.NO_EXPECTED
+    TextBuilder().printEOL()
+    TextHeader(headerType, headerPrefix, headerSuffix).print()
 
-    Text.printEOL()  # New line
-    Text.print(Text.header(headerType, headerPrefix, headerSuffix))  # Header
+    if not passed or noExpect:
+        argsLine.print()            # "Args" line in console
+    resLine.print()                 # "Result" line in console
+    if not passed and not noExpect:
+        expLine.print()             # "Expect" line in console
 
-    if not passed and not noExp:
-        Text.printWithGap(argsLine, gap)  # "Args" line
-
-    Text.printWithGap(resLine, gap)  # "Result" line
-
-    if not passed and not noExp:
-        Text.printWithGap(expLine, gap)  # "Expect" line
-
-    return passed or noExp
-
-
-class Text:
-    headers = {
-        HeaderType.DEFAULT: lambda t, p="", s="": Text.bold(p + t + s),
-        HeaderType.PASSED: lambda t, p="", s="": Text.color(Text.bold(p + t + s if t else p + "✅ TEST PASSED"), 'green') + s,
-        HeaderType.FAILED: lambda t, p="", s="": Text.color(Text.bold(p + t + s if t else p + "❌ TEST FAILED"), 'red') + s,
-        HeaderType.NO_EXPECTED: lambda t, p="", s="": Text.color(Text.bold(p + t + s if t else p + "ℹ️  EXPECTED UNKNOWN"), 'blue') + s,
-        HeaderType.TIMEOUT: lambda t, p="", s="": Text.color(Text.bold(p + t + s if t else p + "🟡 TEST TIMEOUT"), 'yellow') + s,
-    }
-
-    @staticmethod
-    def normal(text: str) -> str:
-        return '\033[0m' + text + '\033[0m'
-
-    @staticmethod
-    def bold(text: str) -> str:
-        return '\033[1m' + text + '\033[0m'
-
-    @staticmethod
-    def color(text: str, color: Color) -> str:
-        return colored(text, color)
-
-    @staticmethod
-    def header(type: HeaderType, prefix="", sufix="", customText="") -> str:
-        return Text.headers[type](customText, prefix, sufix)
-
-    @staticmethod
-    def printWithGap(text: str, gap=DEF_GAP) -> None:
-        print(f'{gap}{text}', flush=True)
-
-    @staticmethod
-    def printEOL() -> None:
-        print(flush=True)
-
-    @staticmethod
-    def print(text: str) -> None:
-        print(text, flush=True)
+    return passed or noExpect
 
 
 class Test:
@@ -93,28 +44,29 @@ class Test:
         self._timeout = timeout
         self.tests = []
 
+    def add(self, expect, *args, **kwargs) -> None:
+        self.tests.append((expect, args, kwargs))
+
     def __print_result(self, result, expect, headerPrefix, headerSuffix, *args) -> bool:
         return equal(result, expect, headerPrefix, headerSuffix, BIG_GAP, *args)
 
     def __getIndex(self, index) -> str:
         return f'[{index}/{len(self.tests)}] '
 
-    def add(self, expect, *args, **kwargs) -> None:
-        self.tests.append((expect, args, kwargs))
-
     def __execute_test(self, test, idx) -> tuple:
-        _expect, args, kwargs = test
+        _, args, kwargs = test
         headerPrefix = self.__getIndex(idx)
-        startTime = time.time()
 
+        startTime = time.time()
+        
         with ProcessPoolExecutor(max_workers=1) as executor:
             future = executor.submit(self._fun, *args, **kwargs)
             try:
                 result = future.result(timeout=self._timeout / 1000)
                 return (True, result, startTime)
             except TimeoutError:
-                self.__handle_timeout(headerPrefix, len(
-                    self.tests) - idx, startTime)
+                skiped = len(self.tests) - idx
+                self.__handle_timeout(headerPrefix, skiped, startTime)
                 return (False, None, startTime)
 
     def run(self) -> None:
@@ -125,54 +77,26 @@ class Test:
                 break  # Exit due to timeout
             testTime = (time.time() - start_time) * 1000
             totalTime += testTime
-            self.__print_result(test_result, test[0], self.__getIndex(
-                idx), f' in {testTime:.2f} ms', '', *test[1])
+            elapsed = f' in {testTime:.2f} ms'
+            pref = self.__getIndex(idx)
+            self.__print_result(
+                test_result, test[0], pref, elapsed, '', *test[1])
             idx += 1
         self.__print_summary(totalTime)
 
     def __handle_timeout(self, headerPrefix, notRun, start_time):
-        Text.print(Text.header(HeaderType.TIMEOUT,
-                   f'\n{headerPrefix}', f' after {self._timeout} ms'))
-        Text.print(Text.color(Text.bold('\n⛔️ TESTING PROCESS HALTED'), 'red'))
+        TextHeader(HeaderType.TIMEOUT,
+                   f'\n{headerPrefix}', f' after {self._timeout} ms').print()
+        TextBuilder('\n⛔️ TESTING PROCESS HALTED', True, 'red').print()
+
         if notRun > 0:
-            Text.printWithGap(Text.color(
-                Text.bold(f'{notRun} {"test" if notRun == 1 else "tests"} not run!'), 'white'))
+            TextBuilder(
+                f'{notRun} {"test" if notRun == 1 else "tests"} not run!', True).gap(Gaps.L_NORMAL).print()
+
         totalTime = (time.time() - start_time) * 1000 + self._timeout
         self.__print_summary(totalTime)
         os._exit(1)
 
     def __print_summary(self, totalTime):
-        Text.print(Text.color(
-            Text.bold(f'\nℹ️  Finished in {totalTime:.2f} ms'), 'blue'))
-
-    # def run(self) -> None:
-    #     idx, totalTime = 0, 1
-    #     for expect, args, kwargs in self.tests:
-    #         headerPrefix = self.__getIndex(idx)
-    #         start_time = time.time()
-
-    #         with ProcessPoolExecutor(max_workers=1) as executor:
-    #             future = executor.submit(self._fun, *args, **kwargs)
-    #             try:
-    #                 result = future.result(timeout=self._timeout / 1000)
-    #             except TimeoutError:
-    #                 Text.print(Text.header(
-    #                     HeaderType.TIMEOUT, f'\n{headerPrefix}', f' after {self._timeout} ms'))
-    #                 Text.print(Text.color(
-    #                     Text.bold('\n⛔️ TESTING PROCESS HALTED'), 'red'))
-    #                 notRun = len(self.tests) - idx
-    #                 if notRun > 0:
-    #                     Text.printWithGap(Text.color(Text.bold(
-    #                         f'{notRun} {"test" if notRun == 1 else "tests"} not run!'), 'white'))
-    #                 Text.print(Text.color(
-    #                     Text.bold(f'\nℹ️  Finished in {(totalTime + self._timeout):.2f} ms'), 'grey'))
-    #                 os._exit(1)
-
-    #         testTime = (time.time() - start_time) * 1000
-    #         totalTime += testTime
-    #         self.__print_result(result, expect, headerPrefix,
-    #                             f' in {testTime:.2f} ms', '', *args)
-    #         idx += 1
-
-    #     Text.print(Text.color(
-    #         Text.bold(f'\nℹ️  Finished in {totalTime:.2f} ms'), 'blue'))
+        TextBuilder(
+            f'\nℹ️  Finished in {totalTime:.2f} ms', True, 'blue').print()
