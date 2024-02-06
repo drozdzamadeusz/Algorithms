@@ -36,6 +36,7 @@ class Solution:
 
         return find(0)
 
+
 fun = Solution().numDecodings
 t = Test()
 t.add(fun("12"), 2)
