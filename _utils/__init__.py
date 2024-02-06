@@ -102,34 +102,77 @@ class Test:
     def add(self, expect, *args, **kwargs) -> None:
         self.tests.append((expect, args, kwargs))
 
+    def __execute_test(self, test, idx) -> tuple:
+        _expect, args, kwargs = test
+        headerPrefix = self.__getIndex(idx)
+        startTime = time.time()
+
+        with ProcessPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(self._fun, *args, **kwargs)
+            try:
+                result = future.result(timeout=self._timeout / 1000)
+                return (True, result, startTime)
+            except TimeoutError:
+                self.__handle_timeout(headerPrefix, len(
+                    self.tests) - idx, startTime)
+                return (False, None, startTime)
+
     def run(self) -> None:
-        idx, totalTime = 0, 1
-        for expect, args, kwargs in self.tests:
-            headerPrefix = self.__getIndex(idx)
-            start_time = time.time()
-
-            with ProcessPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(self._fun, *args, **kwargs)
-                try:
-                    result = future.result(timeout=self._timeout / 1000)
-                except TimeoutError:
-                    Text.print(Text.header(
-                        HeaderType.TIMEOUT, f'\n{headerPrefix}', f' after {self._timeout} ms'))
-                    Text.print(Text.color(
-                        Text.bold('\n⛔️ TESTING PROCESS HALTED'), 'red'))
-                    notRun = len(self.tests) - idx
-                    if notRun > 0:
-                        Text.printWithGap(Text.color(Text.bold(
-                            f'{notRun} {"test" if notRun == 1 else "tests"} not run!'), 'white'))
-                    Text.print(Text.color(
-                        Text.bold(f'\nℹ️  Finished in {(totalTime + self._timeout):.2f} ms'), 'grey'))
-                    os._exit(1)
-
+        idx, totalTime = 0, 0
+        for test in self.tests:
+            result, test_result, start_time = self.__execute_test(test, idx)
+            if not result:
+                break  # Exit due to timeout
             testTime = (time.time() - start_time) * 1000
             totalTime += testTime
-            self.__print_result(result, expect, headerPrefix,
-                                f' in {testTime:.2f} ms', '', *args)
+            self.__print_result(test_result, test[0], self.__getIndex(
+                idx), f' in {testTime:.2f} ms', '', *test[1])
             idx += 1
+        self.__print_summary(totalTime)
 
+    def __handle_timeout(self, headerPrefix, notRun, start_time):
+        Text.print(Text.header(HeaderType.TIMEOUT,
+                   f'\n{headerPrefix}', f' after {self._timeout} ms'))
+        Text.print(Text.color(Text.bold('\n⛔️ TESTING PROCESS HALTED'), 'red'))
+        if notRun > 0:
+            Text.printWithGap(Text.color(
+                Text.bold(f'{notRun} {"test" if notRun == 1 else "tests"} not run!'), 'white'))
+        totalTime = (time.time() - start_time) * 1000 + self._timeout
+        self.__print_summary(totalTime)
+        os._exit(1)
+
+    def __print_summary(self, totalTime):
         Text.print(Text.color(
             Text.bold(f'\nℹ️  Finished in {totalTime:.2f} ms'), 'blue'))
+
+    # def run(self) -> None:
+    #     idx, totalTime = 0, 1
+    #     for expect, args, kwargs in self.tests:
+    #         headerPrefix = self.__getIndex(idx)
+    #         start_time = time.time()
+
+    #         with ProcessPoolExecutor(max_workers=1) as executor:
+    #             future = executor.submit(self._fun, *args, **kwargs)
+    #             try:
+    #                 result = future.result(timeout=self._timeout / 1000)
+    #             except TimeoutError:
+    #                 Text.print(Text.header(
+    #                     HeaderType.TIMEOUT, f'\n{headerPrefix}', f' after {self._timeout} ms'))
+    #                 Text.print(Text.color(
+    #                     Text.bold('\n⛔️ TESTING PROCESS HALTED'), 'red'))
+    #                 notRun = len(self.tests) - idx
+    #                 if notRun > 0:
+    #                     Text.printWithGap(Text.color(Text.bold(
+    #                         f'{notRun} {"test" if notRun == 1 else "tests"} not run!'), 'white'))
+    #                 Text.print(Text.color(
+    #                     Text.bold(f'\nℹ️  Finished in {(totalTime + self._timeout):.2f} ms'), 'grey'))
+    #                 os._exit(1)
+
+    #         testTime = (time.time() - start_time) * 1000
+    #         totalTime += testTime
+    #         self.__print_result(result, expect, headerPrefix,
+    #                             f' in {testTime:.2f} ms', '', *args)
+    #         idx += 1
+
+    #     Text.print(Text.color(
+    #         Text.bold(f'\nℹ️  Finished in {totalTime:.2f} ms'), 'blue'))
