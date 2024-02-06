@@ -21,7 +21,7 @@ if __name__ == '__main__':
     sol = Solution()
     test = Test(sol.countSubstrings)
 
-    test.equal(3, "abc")
-    test.equal(6, "aaa")
+    test.add(3, "abc")
+    test.add(6, "aaa")
 
     test.run()

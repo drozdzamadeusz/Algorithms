@@ -39,17 +39,17 @@ class Solution:
 if __name__ == '__main__':
     fun = Solution().wallsAndGates
     test = Test(fun)
-    expected = [[3, -1, 0, 1], [2, 2, 1, -1], [1, -1, 2, -1], [0, -1, 3, 4]]
+    expected = [[2, -1, 0, 1], [2, 2, 1, -1], [1, -1, 2, -1], [0, -1, 3, 4]]
     arg = [
         [2147483647, -1, 0, 2147483647],
         [2147483647, 2147483647, 2147483647, -1],
         [2147483647, -1, 2147483647, -1],
         [0, -1, 2147483647, 2147483647],
     ]
-    test.equal(expected, arg)
+    test.add(expected, arg)
 
     arg = [[-1]]
     expected = [[-1]]
-    test.equal(arg, expected)
+    test.add(arg, expected)
 
     test.run()

@@ -37,8 +37,8 @@ if __name__ == '__main__':
     sol = Solution()
     test = Test(sol.rob)
 
-    test.equal(4, [1, 2, 3, 1])
-    test.equal(4, [1, 2, 3, 1])
-    test.equal(3, [1, 2, 3])
+    test.add(4, [1, 2, 3, 1])
+    test.add(4, [1, 2, 3, 1])
+    test.add(3, [1, 2, 3])
 
     test.run()

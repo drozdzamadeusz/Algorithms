@@ -28,6 +28,6 @@ class Solution:
 if __name__ == '__main__':
     sol = Solution()
     test = Test(sol.longestPalindrome)
-    test.equal( "bab", "babad",)
-    test.equal("bb", "cbbd")
+    test.add("bab", "babad")
+    test.add("bb", "cbbd")
     test.run()
