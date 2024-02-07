@@ -70,7 +70,7 @@ class Test:
         return equal(result, expect, headerPrefix, headerSuffix, BIG_GAP, timeout, args)
 
     def __getIndex(self, idx: str) -> str:
-        return INDEX_MSG.format(idx=idx+1, total=len(self.tests))
+        return INDEX_MSG.format(idx=idx + 1, total=len(self.tests))
 
     def __execute_test(self, test: tuple, idx: int) -> tuple:
         _, args, kwargs = test
@@ -84,7 +84,7 @@ class Test:
                 result = future.result(timeout=timeout)
                 return (True, result, startTime)
             except TimeoutError:
-                notRun = len(self.tests) - idx
+                notRun = len(self.tests) - idx - 1
                 self.__handle_timeout(test, headerPref, notRun, startTime)
                 return (False, None, startTime)
 
