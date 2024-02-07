@@ -24,7 +24,7 @@ class TextHeader:
             HeaderType.PASSED: ("✅ TEST PASSED", 'green'),
             HeaderType.FAILED: ("❌ TEST FAILED", 'red'),
             HeaderType.NO_EXPECTED: ("ℹ️  EXPECTED UNKNOWN", 'blue'),
-            HeaderType.TIMEOUT: ("🟡 TEST TIMEOUT", 'yellow'),
+            HeaderType.TIMEOUT: ("⏰ TEST TIMEOUT", 'yellow'),
         }
 
         text, color = defaultMessages.get(self._headerType, ("", None))
