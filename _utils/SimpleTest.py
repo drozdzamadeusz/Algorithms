@@ -1,21 +1,14 @@
-from _utils import Test, equal
+from _utils import Test
 
-# Created using "Test" calss
-print("\n\nAdded using \"Test\" calss:")
+def fun(a): return a
 
-Test = Test()
+if __name__ == '__main__':
+    print("\n\nAdded using \"Test\" calss:")
 
-Test.add(result=[1, 2, 3, 4], expect=[1, 2, 3, 4])
-Test.add(result=[5, 6, 7, 8], expect=[2, 1, 3, 7])
-Test.add(result=[7, 8, 9, 10])
+    test = Test(fun)
 
-Test.run()
+    test.add([1, 2, 3, 4], [1, 2, 3, 4])
+    test.add([5, 6, 7, 8], [2, 1, 3, 7])
+    test.add([7, 8, 9, 10], [])
 
-
-# Method "equal" called directly
-print("\n\nMethod \"equal\" called directly:")
-
-equal(result=[1, 2, 3, 4], expect=[1, 2, 3, 4])
-equal(result=[5, 6, 7, 8], expect=[2, 1, 3, 7])
-equal(result=[7, 8, 9, 10])
-
+    test.run()

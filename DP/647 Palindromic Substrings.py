@@ -17,12 +17,11 @@ class Solution:
 
         return res
 
+if __name__ == '__main__':
+    sol = Solution()
+    test = Test(sol.countSubstrings)
 
-sol = Solution()
+    test.add(3, "abc")
+    test.add(6, "aaa")
 
-test = Test()
-
-test.add(sol.countSubstrings("abc"), 3)
-test.add(sol.countSubstrings("aaa"), 6)
-
-test.run()
+    test.run()
