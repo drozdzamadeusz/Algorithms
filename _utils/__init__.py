@@ -19,7 +19,7 @@ ELAPSED_MSG = ' {word} {elapsed:.{prec}f} ms'
 def equal(result=None, expect=UNSPECIFIED, headerPrefix="", headerSuffix="", gap=DEF_GAP, timeout=False, *args) -> bool:
     noExpect = expect == UNSPECIFIED
     passed = result == expect
-    argsStr = formatArgs(args) or "None"
+    argsStr = (formatArgs(args) or "None") if args else ""
     headerType = TextHeader.parseHeaderType(passed, noExpect, timeout)
 
     argsLine = TextBuilder("Args:   ", True, 'grey', '', f'{argsStr}', gap)
@@ -30,7 +30,7 @@ def equal(result=None, expect=UNSPECIFIED, headerPrefix="", headerSuffix="", gap
     TextBuilder().printEOL()
     TextHeader(headerType, headerPrefix, headerSuffix).print()
 
-    if not passed or noExpect:
+    if (not passed or noExpect) and args:
         argsLine.print()            # "Args" line in console
     if not timeout:
         resLine.print()             # "Result" line in console
