@@ -9,7 +9,7 @@ TIMEOUT_SEC = 5000
 
 
 UNSPECIFIED = "_UNSPECIFIED_"
-TEST_HALTED_MSG = '\n⛔️ TESTING PROCESS HALTED'
+TEST_HALTED_MSG = '\n⛔️ TESTING HALTED'
 SUMMARY_MSG = '\nℹ️  Finished in {total_time:.2f} ms'
 TESTS_NOT_RUN_MSG = '{not_run} {test_word} not run!'
 INDEX_MSG = '[{idx}/{total}] '

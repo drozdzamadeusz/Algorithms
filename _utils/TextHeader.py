@@ -24,7 +24,7 @@ class TextHeader:
             HeaderType.PASSED: ("✅ TEST PASSED", 'green'),
             HeaderType.FAILED: ("❌ TEST FAILED", 'red'),
             HeaderType.NO_EXPECTED: ("ℹ️  EXPECTED UNKNOWN", 'blue'),
-            HeaderType.TIMEOUT: ("🟡 TEST TIMEOUT", 'orange'),
+            HeaderType.TIMEOUT: ("🟡 TEST TIMEOUT", 'yellow'),
         }
 
         text, color = defaultMessages.get(self._headerType, ("", None))
@@ -38,7 +38,7 @@ class TextHeader:
         return self.get().build()
 
     def print(self) -> None:
-        print(self.get())
+        print(self.build())
 
     @staticmethod
     def parseHeaderType(passed: bool, noExpect: bool):
