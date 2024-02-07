@@ -44,18 +44,19 @@ class Test:
     def __init__(self, fun=None, timeout=TIMEOUT_SEC) -> None:
         self._fun = fun
         self._timeout = timeout
-        self.tests = []
+        self._tests = []
+        self._totalElapsed = 0
 
     def add(self, expect, *args, **kwargs) -> None:
-        self.tests.append((expect, args, kwargs))
+        self._tests.append((expect, args, kwargs))
 
     def run(self) -> None:
-        idx, totalElapsed = 0, 0
-        for test in self.tests:
+        idx, self._totalElapsed = 0, 0
+        for test in self._tests:
             _, test_result, test_time = self.__execute_test(test, idx)
 
             elapsed = (time.time() - test_time) * 1000
-            totalElapsed += elapsed
+            self._totalElapsed += elapsed
 
             timeStr = ELAPSED_MSG.format(word="in", elapsed=elapsed, prec=2)
             prefix = self.__getIndex(idx)
@@ -63,14 +64,14 @@ class Test:
 
             idx += 1
 
-        self.__print_summary(totalElapsed)
+        self.__print_summary(self._totalElapsed)
 
     def __print_result(self, result: any, test: tuple, headerPrefix: str, headerSuffix: str, timeout=False) -> bool:
         expect, args, _ = test
         return equal(result, expect, headerPrefix, headerSuffix, BIG_GAP, timeout, args)
 
     def __getIndex(self, idx: str) -> str:
-        return INDEX_MSG.format(idx=idx + 1, total=len(self.tests))
+        return INDEX_MSG.format(idx=idx + 1, total=len(self._tests))
 
     def __execute_test(self, test: tuple, idx: int) -> tuple:
         _, args, kwargs = test
@@ -84,7 +85,7 @@ class Test:
                 result = future.result(timeout=timeout)
                 return (True, result, startTime)
             except TimeoutError:
-                notRun = len(self.tests) - idx - 1
+                notRun = len(self._tests) - idx - 1
                 self.__handle_timeout(test, headerPref, notRun, startTime)
                 return (False, None, startTime)
 
@@ -103,7 +104,7 @@ class Test:
                 test_word="test was" if notRun == 1 else "tests were")
             TextBuilder(skippedStr, True).gap(Gaps.L_NORMAL).print()
 
-        totalTime = (time.time() - startTime) * 1000 + self._timeout
+        totalTime = (time.time() - startTime) * 1000 + self._totalElapsed
         self.__print_summary(totalTime)
 
         os._exit(1)  # Halt testing
