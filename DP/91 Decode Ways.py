@@ -2,7 +2,7 @@ from _utils import Test
 
 
 class Solution:
-    def numDecodings(self, s: str, c=None, d=None) -> int:
+    def numDecodings(self, s: str) -> int:
         LEN = len(s)
         memo = {LEN: 1}
 
@@ -12,7 +12,8 @@ class Solution:
                 return memo[i]
 
             n = int(s[i])
-            if n == 0: return 0
+            if n == 0:
+                return 0
 
             ways = 0
 
@@ -23,21 +24,22 @@ class Solution:
             if i + 1 < LEN and int(s[i: i + 2]) in range(10, 27):
                 ways += find(i + 2)
 
-            # memo[i] = ways
+            memo[i] = ways
             return ways
 
         return find(0)
 
 
-
 if __name__ == '__main__':
     fun = Solution().numDecodings
-    t = Test(fun, 500)
-    t.add(32, "224", 2, [])
-    t.add(32, "226",2, {2})
-    t.add(1, "06")
+    t = Test(fun, 5000)
+
+    t.add(3, "224")
+    t.add(3, "226")
+    t.add(0, "06")
     t.add(1836311903, "111111111111111111111111111111111111111111111")
-    t.add(0, "1233213121")
+    t.add(27, "1233213121")
+
     t.run()
 
 

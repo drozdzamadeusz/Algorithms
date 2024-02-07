@@ -5,7 +5,7 @@ from _utils.TextBuilder import BIG_GAP, DEF_GAP, Gaps, TextBuilder
 from _utils.TextHeader import HeaderType, TextHeader
 from _utils.helpers import formatArgs
 
-TIMEOUT_SEC = 5000
+TIMEOUT_SEC = 10000
 
 
 UNSPECIFIED = "_UNSPECIFIED_"
@@ -16,11 +16,11 @@ INDEX_MSG = '[{idx}/{total}] '
 ELAPSED_MSG = ' {word} {elapsed:.{prec}f} ms'
 
 
-def equal(result, expect=UNSPECIFIED, headerPrefix="", headerSuffix="", gap=DEF_GAP, *args) -> bool:
+def equal(result=None, expect=UNSPECIFIED, headerPrefix="", headerSuffix="", gap=DEF_GAP, timeout=False, *args) -> bool:
     noExpect = expect == UNSPECIFIED
     passed = result == expect
     argsStr = formatArgs(args) or "None"
-    headerType = TextHeader.parseHeaderType(passed, noExpect)
+    headerType = TextHeader.parseHeaderType(passed, noExpect, timeout)
 
     argsLine = TextBuilder("Args:   ", True, 'grey', '', f'{argsStr}', gap)
     resLine = TextBuilder("Result: ", True, 'grey', '', f'{result}', gap)
@@ -32,7 +32,8 @@ def equal(result, expect=UNSPECIFIED, headerPrefix="", headerSuffix="", gap=DEF_
 
     if not passed or noExpect:
         argsLine.print()            # "Args" line in console
-    resLine.print()                 # "Result" line in console
+    if not timeout:
+        resLine.print()             # "Result" line in console
     if not passed and not noExpect:
         expLine.print()             # "Expect" line in console
 
@@ -64,9 +65,9 @@ class Test:
 
         self.__print_summary(totalElapsed)
 
-    def __print_result(self, result: any, test: tuple, headerPrefix: str, headerSuffix: str) -> bool:
+    def __print_result(self, result: any, test: tuple, headerPrefix: str, headerSuffix: str, timeout=False) -> bool:
         expect, args, _ = test
-        return equal(result, expect, headerPrefix, headerSuffix, BIG_GAP, args)
+        return equal(result, expect, headerPrefix, headerSuffix, BIG_GAP, timeout, args)
 
     def __getIndex(self, idx: str) -> str:
         return INDEX_MSG.format(idx=idx, total=len(self.tests))
@@ -79,19 +80,21 @@ class Test:
         with ProcessPoolExecutor(max_workers=1) as executor:
             future = executor.submit(self._fun, *args, **kwargs)
             try:
-                result = future.result(timeout=self._timeout / 1000)
+                timeout = self._timeout / 1000 if self._timeout != 0 else None
+                result = future.result(timeout=timeout)
                 return (True, result, startTime)
             except TimeoutError:
-                skipped = len(self.tests) - idx
-                self.__handle_timeout(headerPref, skipped, startTime)
+                notRun = len(self.tests) - idx
+                self.__handle_timeout(test, headerPref, notRun, startTime)
                 return (False, None, startTime)
 
-    def __handle_timeout(self, headerPrefix, notRun, start_time):
+    def __handle_timeout(self, test: tuple, headerPref, notRun, startTime):
         timeStr = ELAPSED_MSG.format(
             word="after",
             elapsed=self._timeout,
             prec=0)
-        TextHeader(HeaderType.TIMEOUT, f'\n{headerPrefix}', timeStr).print()
+        self.__print_result(None, test, headerPref, timeStr, True)
+
         TextBuilder(TEST_HALTED_MSG, True, 'red').print()
 
         if notRun > 0:
@@ -100,7 +103,7 @@ class Test:
                 test_word="test was" if notRun == 1 else "tests were")
             TextBuilder(skippedStr, True).gap(Gaps.L_NORMAL).print()
 
-        totalTime = (time.time() - start_time) * 1000 + self._timeout
+        totalTime = (time.time() - startTime) * 1000 + self._timeout
         self.__print_summary(totalTime)
 
         os._exit(1)  # Halt testing

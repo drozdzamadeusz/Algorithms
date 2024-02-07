@@ -41,8 +41,10 @@ class TextHeader:
         print(self.build())
 
     @staticmethod
-    def parseHeaderType(passed: bool, noExpect: bool):
-        if noExpect:
+    def parseHeaderType(passed: bool, noExpect: bool, timeout: bool):
+        if timeout:
+            return HeaderType.TIMEOUT
+        elif noExpect:
             return HeaderType.NO_EXPECTED
         elif passed:
             return HeaderType.PASSED
