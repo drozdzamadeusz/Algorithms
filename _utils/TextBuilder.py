@@ -9,7 +9,7 @@ UNSPECIFIED = "_UNSPECIFIED_"
 DEF_GAP = "   "
 BIG_GAP = "         "
 
-Color = Literal["red", "green", "yellow", "blue", "white", "grey", "orange"]
+Color = Literal["red", "green", "yellow", "blue", "white", "grey"]
 
 
 class Gaps(Enum):
