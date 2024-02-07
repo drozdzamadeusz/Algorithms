@@ -11,34 +11,40 @@ class HeaderType(Enum):
 
 
 class TextHeader:
-    _headers = {
-        HeaderType.DEFAULT: lambda t, p="", s="": TextBuilder(p + t + s, True),
-        HeaderType.PASSED: lambda t, p="", s="": TextBuilder(p + (t if t else "✅ TEST PASSED") + s, True, 'green'),
-        HeaderType.FAILED: lambda t, p="", s="": TextBuilder(p + (t if t else "❌ TEST FAILED") + s, True, 'red'),
-        HeaderType.NO_EXPECTED: lambda t, p="", s="": TextBuilder(p + (t if t else "ℹ️  EXPECTED UNKNOWN") + s, True, 'blue'),
-        HeaderType.TIMEOUT: lambda t, p="", s="": TextBuilder(p + (t if t else "🟡 TEST TIMEOUT") + s, True, 'yellow'),
-    }
+    def __init__(self, headerType: HeaderType, prefix="", suffix="", customText=""):
+        self._headerType = headerType
+        self._prefix = prefix
+        self._suffix = suffix
+        self._customText = customText
+        self._header = self.buildHeader()
 
-    def __init__(self, type: HeaderType, prefix="", sufix="", customText=""):
-        self.set(type, prefix, sufix, customText)
+    def buildHeader(self):
+        defaultMessages = {
+            HeaderType.DEFAULT: ("", None),
+            HeaderType.PASSED: ("✅ TEST PASSED", 'green'),
+            HeaderType.FAILED: ("❌ TEST FAILED", 'red'),
+            HeaderType.NO_EXPECTED: ("ℹ️  EXPECTED UNKNOWN", 'blue'),
+            HeaderType.TIMEOUT: ("🟡 TEST TIMEOUT", 'orange'),
+        }
 
-    def set(self, type: HeaderType, prefix="", sufix="", customText=""):
-        self._header = self._headers[type](customText, prefix, sufix)
+        text, color = defaultMessages.get(self._headerType, ("", None))
+        text = self._customText if self._customText else text
+        return TextBuilder(self._prefix + text, True, color).suffix(self._suffix)
 
-    def get(self):
+    def get(self) -> TextBuilder:
         return self._header
 
-    def build(self):
-        return self._header.build()
+    def build(self) -> str:
+        return self.get().build()
 
-    def print(self):
-        return TextBuilder(self.build()).print()
+    def print(self) -> None:
+        print(self.get())
 
     @staticmethod
     def parseHeaderType(passed: bool, noExpect: bool):
-        header = HeaderType.FAILED
-        if passed:
-            header = HeaderType.PASSED
         if noExpect:
-            header = HeaderType.NO_EXPECTED
-        return header
+            return HeaderType.NO_EXPECTED
+        elif passed:
+            return HeaderType.PASSED
+        else:
+            return HeaderType.FAILED

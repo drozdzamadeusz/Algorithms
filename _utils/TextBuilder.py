@@ -1,14 +1,15 @@
 from enum import Enum
 from typing import Literal
-
 from termcolor import colored
 
 
+DEF_TIMEOUT = 5000
+
 UNSPECIFIED = "_UNSPECIFIED_"
-TIMEOUT_SEC = 5000
 DEF_GAP = "   "
 BIG_GAP = "         "
-Color = Literal["red", "green", "yellow", "blue", "white", "grey", 'orange']
+
+Color = Literal["red", "green", "yellow", "blue", "white", "grey", "orange"]
 
 
 class Gaps(Enum):
