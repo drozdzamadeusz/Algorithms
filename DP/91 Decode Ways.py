@@ -2,7 +2,7 @@ from _utils import Test
 
 
 class Solution:
-    def numDecodings(self, s: str) -> int:
+    def numDecodings(self, s: str, c=None, d=None) -> int:
         LEN = len(s)
         memo = {LEN: 1}
 
@@ -32,11 +32,10 @@ class Solution:
 
 if __name__ == '__main__':
     fun = Solution().numDecodings
-
     t = Test(fun, 500)
-    t.add(3, "224")
-    t.add(3, "226")
-    t.add(0, "06")
+    t.add(32, "224", 2, [])
+    t.add(32, "226",2, {2})
+    t.add(1, "06")
     t.add(1836311903, "111111111111111111111111111111111111111111111")
     t.add(0, "1233213121")
     t.run()
