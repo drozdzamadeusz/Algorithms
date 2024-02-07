@@ -70,7 +70,7 @@ class Test:
         return equal(result, expect, headerPrefix, headerSuffix, BIG_GAP, timeout, args)
 
     def __getIndex(self, idx: str) -> str:
-        return INDEX_MSG.format(idx=idx, total=len(self.tests))
+        return INDEX_MSG.format(idx=idx+1, total=len(self.tests))
 
     def __execute_test(self, test: tuple, idx: int) -> tuple:
         _, args, kwargs = test
