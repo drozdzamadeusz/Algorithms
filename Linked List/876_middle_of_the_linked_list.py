@@ -20,3 +20,6 @@ class Solution:
 
 sol = Solution()
 print(sol.middleNode(ListNode(1, ListNode(2, ListNode(3, ListNode(4, ListNode(5, ListNode(6))))))).val)
+print(sol.middleNode(ListNode(1, ListNode(2, ListNode(3, ListNode(4))))).val)
+print(sol.middleNode(ListNode(1, ListNode(2, ListNode(3)))).val)
+print(sol.middleNode(ListNode(5, ListNode(9))).val)
