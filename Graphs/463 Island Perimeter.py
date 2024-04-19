@@ -36,12 +36,13 @@ class Solution:
 
                 if r < 0 or c < 0 or r == ROWS or c == COLS:
                     perimeter += 1
-                else:
-                    if grid[r][c] == 0:
-                        perimeter += 1  # increment perimeter if next cell is water
-                    elif grid[r][c] == 1:
-                        grid[r][c] = -1
-                        perimeter += dfs(r, c)
+                    continue
+
+                if grid[r][c] == 0:
+                    perimeter += 1  # increment perimeter if next cell is water
+                elif grid[r][c] == 1:
+                    grid[r][c] = -1
+                    perimeter += dfs(r, c)
             return perimeter
 
         for r in range(ROWS):
