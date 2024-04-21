@@ -20,10 +20,10 @@ class Solution:
             if curr == destination:
                 return True
 
-            for u in graph[curr]:
-                if u not in vis:
-                    q.append(u)
-                    vis.add(u)
+            for n in graph[curr]:
+                if n not in vis:
+                    q.append(n)
+                    vis.add(n)
 
         return False
 
