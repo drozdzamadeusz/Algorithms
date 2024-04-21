@@ -14,7 +14,7 @@ class Solution:
 
         q = Deque(graph[source])
         vis = set(q)
-        
+
         while q:
             curr = q.popleft()
             if curr == destination:
