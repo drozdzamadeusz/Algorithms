@@ -4,9 +4,7 @@ from typing import List
 class Solution:
     def solveNQueens(self, n: int) -> List[List[str]]:
         def isSafe(row, col, columns, add_diagonally, sub_diagonally):
-            if col in columns or (row + col) in add_diagonally or (row - col) in sub_diagonally:
-                return False
-            return True
+            return not (col in columns or (row + col) in add_diagonally or (row - col) in sub_diagonally)
 
         def explore(r, columns: set, add_diagonally: set, sub_diagonally: set, solution: List[str]):
             if r == n:
@@ -28,8 +26,6 @@ class Solution:
                     add_diagonally.remove(r + c)
                     sub_diagonally.remove(r - c)
                     solution.pop()
-
-            return False
 
         result = []
         explore(0, set(), set(), set(), [])
