@@ -2,23 +2,22 @@ class Solution:
     def uniquePaths(self, m: int, n: int) -> int:
         cache = {}
 
-        def paths(m: int, n: int):
-            if (m, n) in cache:
-                return cache.get((m, n))
+        def dp(r: int, c: int):
+            if (r, c) in cache:
+                return cache.get((r, c))
 
-            if (n, m) in cache:
-                return cache.get((n, m))
+            if (c, r) in cache:
+                return cache.get((c, r))
 
-            if n == 0 or m == 0:
+            if c == 0 or r == 0:
                 return 0
-            if n == m == 1:
+            if c == r == 1:
                 return 1
 
-            cache[(n, m)] = paths(m - 1, n) + paths(m, n - 1)
+            cache[(r, c)] = dp(r - 1, c) + dp(r, c - 1)
+            return cache[(r, c)]
 
-            return cache[(n, m)]
-
-        return paths(m, n)
+        return dp(m, n)
 
 
 sol = Solution()
