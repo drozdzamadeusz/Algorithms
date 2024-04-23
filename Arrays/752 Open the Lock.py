@@ -22,7 +22,6 @@ class Solution:
                 a = pin[:i] + move(pin[i], True) + pin[i + 1:]
                 if int(a) != 0 and a not in vis:
                     opt.append(a)
-            for i in range(4):
                 b = pin[:i] + move(pin[i], False) + pin[i + 1:]
                 if int(b) != 0 and b not in vis:
                     opt.append(b)
