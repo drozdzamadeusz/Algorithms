@@ -10,29 +10,27 @@ class Solution:
 
         def move(d: str, right: bool):
             n = int(d) + (1 if right else -1)
-            if n > 9:
-                return '0'
-            elif n < 0:
-                return '9'
+            if n > 9: return '0'
+            elif n < 0: return '9'
             return f'{n}'
 
-        def options(pin: str, vis:set):
+        def options(pin: str, vis: set):
             opt = []
-            for i in range(4):
+            for i in range(2):
                 a = pin[:i] + move(pin[i], True) + pin[i + 1:]
-                if int(a) != 0 and a not in vis:
+                if a != '00' and a not in vis:
                     opt.append(a)
                 b = pin[:i] + move(pin[i], False) + pin[i + 1:]
-                if int(b) != 0 and b not in vis:
+                if b != '00' and b not in vis:
                     opt.append(b)
             return opt
 
-        q = Deque(options('0000', set()))
+        q = Deque(options('00', set()))
         vis = set()
         steps = 0
 
         optStep = len(q)
-            
+
         while q:
             steps += 1
             optNxtStep = 0
@@ -40,30 +38,33 @@ class Solution:
 
                 curr = q.popleft()
 
-                if curr in deadends or curr in vis:
+                if curr in vis:
                     continue
                 
+                vis.add(curr)
+
+                if curr in deadends:
+                    continue
+
                 if curr == target:
                     return steps
                 
-                
-                vis.add(curr)
                 nxtMoves = options(curr, vis)
                 q.extend(nxtMoves)
 
-                
                 optNxtStep += len(nxtMoves)
             optStep = optNxtStep
         return -1
 
+
 sol = Solution()
-print(sol.openLock(
-    deadends=["0201",
-              "0101",
-              "0102",
-              "1212",
-              "2002"],
-    target="0202"))
 # print(sol.openLock(
-#     deadends=["10"],
-#     target="11"))
+#     deadends=["0201",
+#               "0101",
+#               "0102",
+#               "1212",
+#               "2002"],
+#     target="0202"))
+print(sol.openLock(
+    deadends=["10"],
+    target="11"))
