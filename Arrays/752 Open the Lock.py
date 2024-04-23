@@ -16,16 +16,16 @@ class Solution:
 
         def options(pin: str, vis: set):
             opt = []
-            for i in range(2):
+            for i in range(4):
                 a = pin[:i] + move(pin[i], True) + pin[i + 1:]
-                if a != '00' and a not in vis:
+                if a != '0000' and a not in vis:
                     opt.append(a)
                 b = pin[:i] + move(pin[i], False) + pin[i + 1:]
-                if b != '00' and b not in vis:
+                if b != '0000' and b not in vis:
                     opt.append(b)
             return opt
 
-        q = Deque(options('00', set()))
+        q = Deque(options('0000', set()))
         vis = set()
         steps = 0
 
@@ -58,13 +58,10 @@ class Solution:
 
 
 sol = Solution()
-# print(sol.openLock(
-#     deadends=["0201",
-#               "0101",
-#               "0102",
-#               "1212",
-#               "2002"],
-#     target="0202"))
 print(sol.openLock(
-    deadends=["10"],
-    target="11"))
+    deadends=["0201",
+              "0101",
+              "0102",
+              "1212",
+              "2002"],
+    target="0202"))
