@@ -9,21 +9,21 @@ class Solution:
 
         min_diff, closest = 10 ** 9 + 1, 0
 
-        def dfs(n: Optional[TreeNode]):
+        def dfs(node: Optional[TreeNode]):
             nonlocal min_diff, closest
 
-            if not n:
+            if not node:
                 return
 
-            diff = abs(n.val - target)
+            diff = abs(node.val - target)
 
             if diff < min_diff:
-                min_diff, closest = diff, n.val
+                min_diff, closest = diff, node.val
 
-            if target < n.val:
-                dfs(n.left)
+            if target < node.val:
+                dfs(node.left)
             else:
-                dfs(n.right)
+                dfs(node.right)
 
         dfs(root)
         return closest
