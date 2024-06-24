@@ -3,7 +3,6 @@ from typing import Optional
 from _utils import TreeNode, build_tree
 
 
-
 class Solution:
     def closestValue(self, root: Optional[TreeNode], target: float) -> int:
 
