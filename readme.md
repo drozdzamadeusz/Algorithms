@@ -1,16 +1,24 @@
-# Setup
+# Project Setup
+Follow the steps below to set up your project environment.
 
-In the root directory, execute:
 
-```
-source setup.sh
-```
-Then, choose `_venv-alg` interpreter in your IDE.
+## Step 1: Execute Setup Script
 
----
+Run the appropriate script in the root directory of your project:
 
-You can select the interpreter by following these steps:
+- **Windows**: `setup.ps1`
+- **Unix**: `setup.sh`
 
-**In VS Code:**
-- Open the Command Palette (⇧⌘P) and search for **Python: Select Interpreter**.
-- Select `_venv-alg` interpreter from the list.
+## Step 2: Select Python Interpreter
+
+After running the setup script, select the `_venv-alg` interpreter in your IDE.
+
+### Visual Studio Code
+
+1. **Open the Command Palette**:
+   - **macOS**: Press `⇧⌘P`
+   - **Windows/Linux**: Press `Ctrl⇧P`
+
+2. **Select the Interpreter**:
+   - Type and choose **Python: Select Interpreter** from the command list.
+   - In the list of available interpreters, select `_venv-alg`.
