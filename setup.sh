@@ -18,5 +18,5 @@ code --install-extension ms-python.python
 code --install-extension ms-python.autopep8
 
 # Display the completion message
-echo -e "\n\033[1;32m✅ Setup completed!\033[0m"
+echo -e "\n\033[1;32m✅ Setup completed successfully!\033[0m"
 echo -e "\n\033[1;33mSet Python Interpreter to '_venv-alg'\033[0m"

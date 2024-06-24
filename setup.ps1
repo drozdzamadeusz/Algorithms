@@ -16,5 +16,5 @@ code --install-extension ms-python.python
 code --install-extension ms-python.autopep8
 
 # Display the completion message
-Write-Host "$([char]0x2714) Setup completed!" -ForegroundColor Green
+Write-Host "$([char]0x2714) Setup completed successfully!" -ForegroundColor Green
 Write-Host "Set Python Interpreter to '_venv-alg'" -ForegroundColor Yellow
