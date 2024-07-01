@@ -8,10 +8,10 @@ class Solution:
 
         while r < LEN:
 
-            if l != r:
+            if r > l:
                 nums[l] = nums[r]
 
-            if nums[l] != 0:
+            if nums[l]:
                 l += 1
 
             r += 1
