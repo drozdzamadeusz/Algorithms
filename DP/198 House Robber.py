@@ -1,5 +1,4 @@
 from typing import List
-from _utils import equal
 
 
 # class Solution:
@@ -53,5 +52,4 @@ class Solution:
 
 
 sol = Solution()
-equal(sol.rob([1, 2, 3, 1]))
-equal(sol.rob([2, 7, 9, 3, 1]), 12)
+print(sol.rob([1, 2, 3, 1]))

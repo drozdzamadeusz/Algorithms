@@ -1,4 +1,7 @@
+import random
 from typing import List
+
+from _utils import Test
 
 
 class Solution:
@@ -26,5 +29,24 @@ class Solution:
         return False
 
 
-s = Solution()
-print(s.canJump([0]))
+if __name__ == '__main__':
+    test = Test(Solution().canJump, timeout=1000, output='console_compact')
+
+    random.seed(42)
+
+    test.add(True, [2, 3, 1, 1, 4])
+    test.add(True, [3, 2, 1, 0, 4])
+
+    for _ in range(1):
+        size = 10000
+        array = [random.randint(0, 300) for _ in range(size)]
+        expect = True  # The expected result is unknown; testing performance
+        test.add(expect, array)
+
+    for _ in range(3):
+        size = 100000
+        array = [random.randint(0, 300) for _ in range(size)]
+        expect = True  # The expected result is unknown; testing performance
+        test.add(expect, array)
+
+    test.run()

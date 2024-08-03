@@ -29,7 +29,7 @@ class TextHeader:
 
         text, color = defaultMessages.get(self._headerType, ("", None))
         text = self._customText if self._customText else text
-        return TextBuilder(self._prefix + text, True, color).suffix(self._suffix)
+        return TextBuilder(f'{self._prefix}{text}', True, color).suffix(self._suffix)
 
     def get(self) -> TextBuilder:
         return self._header
