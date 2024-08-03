@@ -1,6 +1,5 @@
 .DS_Store
 *tempCode.py
 *__pycache__
-*_venv
-*_venv-alg
+*.venv
 *.obsidian
