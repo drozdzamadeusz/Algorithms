@@ -1,7 +1,7 @@
 import time
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from typing import Literal
-from _utils.TextBuilder import BIG_GAP, DEF_GAP, TextBuilder
+from _utils.TextBuilder import BIG_GAP, DEF_GAP, Gaps, TextBuilder
 from _utils.TextHeader import TextHeader
 from _utils.helpers import formatArgs
 
@@ -9,7 +9,7 @@ TIMEOUT_SEC = 10000
 
 UNSPECIFIED = "_UNSPECIFIED_"
 TEST_HALTED_MSG = '\n⛔️ TESTING HALTED'
-SUMMARY_MSG = '\nℹ️  Finished in {total_time:.2f} ms'
+SUMMARY_MSG = '\n✓ Completed in {total_time:.2f} ms'
 TESTS_NOT_RUN_MSG = '{not_run} {test_word} skipped after timeout!'
 INDEX_MSG = '[{idx}/{total}] '
 ELAPSED_MSG = ' {word} {elapsed:.{prec}f} ms'
@@ -17,14 +17,19 @@ ELAPSED_MSG = ' {word} {elapsed:.{prec}f} ms'
 TOutputMode = Literal['console_default', 'console_compact']
 OUTPUT_MODE = 'console_default'
 
+TTestMode = Literal['equal_result', 'execution_time']
+TEST_MODE = 'equal_result'
+
 
 class Test:
     def __init__(self,
                  fun=None,
                  timeout: int | Literal[False] = TIMEOUT_SEC,
+                 mode: TTestMode = TEST_MODE,
                  output: TOutputMode = OUTPUT_MODE) -> None:
         self._fun = fun
         self._timeout = timeout
+        self._mode = mode
         self._output_mode = output
 
         self._tests = []
@@ -34,16 +39,17 @@ class Test:
         self._tests.append((expect, args, kwargs))
 
     def run(self) -> None:
+        self.__print_header()
+
         idx, self._totalElapsed = 0, 0
         for test in self._tests:
-            test_result, test_time, timeout = self.__execute_test(test, idx)
+            test_result, elapsed, timeout = self.__execute_test(test, idx)
 
-            elapsed = (time.time() - test_time) * 1000
             self._totalElapsed += elapsed
 
             timeStr = ELAPSED_MSG.format(word="in", elapsed=elapsed, prec=2)
-            prefix = self.__getIndex(idx)
-            self.__print_result(test_result, test, prefix, timeStr, timeout)
+            indexStr = self.__getIndex(idx)
+            self.__print_result(test_result, test, indexStr, timeStr, timeout)
 
             idx += 1
 
@@ -57,10 +63,14 @@ class Test:
                        timeout=False,
                        *args) -> bool:
         expect, args, _ = test
-        noExpect = expect == UNSPECIFIED
+
         passed = result == expect
+        noExpect = expect == UNSPECIFIED
+        performance = self._mode == 'execution_time'
+        headerType = TextHeader.parseHeaderType(
+            passed, noExpect, timeout, performance)
+
         argsStr = (formatArgs(args) or "None") if args else ""
-        headerType = TextHeader.parseHeaderType(passed, noExpect, timeout)
 
         argsLine = TextBuilder("Args:   ", True, 'grey',
                                '', f'{argsStr}', BIG_GAP)
@@ -72,15 +82,16 @@ class Test:
         TextBuilder().printEOL()
         TextHeader(headerType, headerPrefix, headerSuffix).print()
 
-        if self._output_mode in ['console_default']:
-            if (not passed or noExpect) and args:
-                argsLine.print()                    # "Args" line in console
+        if self._mode in ['equal_result']:
+            if self._output_mode in ['console_default'] and\
+                    (not passed or noExpect) and args:
+                argsLine.print()                            # "Args" line in console
 
-        if not timeout:
-            resLine.print()                         # "Result" line in console
+            if not timeout:
+                resLine.print()                             # "Result" line in console
 
-        if not passed and not noExpect:
-            expLine.print()                         # "Expect" line in console
+            if (not passed or timeout) and not noExpect:
+                expLine.print()                             # "Expect" line in console
 
         return passed or noExpect
 
@@ -90,19 +101,29 @@ class Test:
     def __execute_test(self, test: tuple, idx: int) -> tuple:
         _, args, kwargs = test
 
-        startTime = time.time()
         with ProcessPoolExecutor(max_workers=1) as executor:
             future = executor.submit(self._fun, *args, **kwargs)
+            timeout = self._timeout / 1000 if self._timeout > 0 else None
+
+            result = None
+            timeoutStop = False
+            startTime = time.time()
             try:
-                timeout = self._timeout / 1000 if self._timeout > 0 else None
                 result = future.result(timeout)
-                return (result, startTime, False)
             except TimeoutError:
-                return (None, startTime, True)
+                timeoutStop = True
+            finally:
+                elapsed = (time.time() - startTime) * 1000
+                return (result, elapsed, timeoutStop)
 
     def __print_summary(self, totalTime):
         summaryStr = SUMMARY_MSG.format(total_time=totalTime)
-        TextBuilder(summaryStr, True, 'blue').print()
+        TextBuilder(summaryStr, True, 'white').print()
+
+    def __print_header(self):
+        TextBuilder('Launching test engine...', True, 'white').printEOL().print().printEOL().text(
+            'Mode:   ').suffix(self._mode.capitalize()).print().text(
+            'Output: ').suffix(self._output_mode.capitalize()).print()
 
 
 class TreeNode:

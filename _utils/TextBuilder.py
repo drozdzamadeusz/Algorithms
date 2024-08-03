@@ -20,7 +20,15 @@ class Gaps(Enum):
 
 
 class TextBuilder:
-    def __init__(self, text="", bold=False, color=None, prefix=None, suffix=None, leftGap=None, rightGap=None, header=None):
+    def __init__(self,
+                 text="",
+                 bold=False,
+                 color: Color = None,
+                 prefix: str = None,
+                 suffix: str = None,
+                 leftGap=None,
+                 rightGap=None,
+                 header=None):
         self._text = text
         self._bold = bold
         self._color = color
@@ -81,6 +89,8 @@ class TextBuilder:
         if text is not None:
             self._text = text
         print(self.build(), flush=True)
+        return self
 
     def printEOL(self):
         print(flush=True)
+        return self

@@ -30,23 +30,16 @@ class Solution:
 
 
 if __name__ == '__main__':
-    test = Test(Solution().canJump, timeout=1000, output='console_compact')
+    test = Test(Solution().canJump, timeout=1000, mode='execution_time')
 
-    random.seed(42)
+    random.seed(10)
 
     test.add(True, [2, 3, 1, 1, 4])
     test.add(True, [3, 2, 1, 0, 4])
 
-    for _ in range(1):
-        size = 10000
-        array = [random.randint(0, 300) for _ in range(size)]
-        expect = True  # The expected result is unknown; testing performance
-        test.add(expect, array)
-
-    for _ in range(3):
-        size = 100000
-        array = [random.randint(0, 300) for _ in range(size)]
-        expect = True  # The expected result is unknown; testing performance
-        test.add(expect, array)
+    for _ in range(8):
+        size = random.randint(50000, 100000)
+        array = [random.randint(0, 250) for _ in range(size)]
+        test.add(None, array)
 
     test.run()

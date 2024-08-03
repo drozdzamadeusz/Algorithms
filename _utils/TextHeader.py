@@ -8,6 +8,7 @@ class HeaderType(Enum):
     PASSED = 'passed'
     NO_EXPECTED = 'no_expected'
     TIMEOUT = 'timeout'
+    PERFORMANCE = 'performance'
 
 
 class TextHeader:
@@ -21,10 +22,11 @@ class TextHeader:
     def buildHeader(self):
         defaultMessages = {
             HeaderType.DEFAULT: ("", None),
-            HeaderType.PASSED: ("✅ TEST PASSED", 'green'),
-            HeaderType.FAILED: ("❌ TEST FAILED", 'red'),
-            HeaderType.NO_EXPECTED: ("ℹ️  EXPECTED UNKNOWN", 'blue'),
-            HeaderType.TIMEOUT: ("⏰ TEST TIMEOUT", 'yellow'),
+            HeaderType.PASSED: ("✅ PASSED", 'green'),
+            HeaderType.FAILED: ("❌ FAILED", 'red'),
+            HeaderType.NO_EXPECTED: ("ℹ️ EXPECTED RESULT UNKNOWN", 'blue'),
+            HeaderType.TIMEOUT: ("⏰ TIMEOUT", 'yellow'),
+            HeaderType.PERFORMANCE: ("✅ COMPLETED", 'green'),
         }
 
         text, color = defaultMessages.get(self._headerType, ("", None))
@@ -41,12 +43,13 @@ class TextHeader:
         print(self.build())
 
     @staticmethod
-    def parseHeaderType(passed: bool, noExpect: bool, timeout: bool):
+    def parseHeaderType(passed: bool, noExpect: bool, timeout: bool, performance: bool):
         if timeout:
             return HeaderType.TIMEOUT
-        elif noExpect:
+        if performance:
+            return HeaderType.PERFORMANCE
+        if noExpect:
             return HeaderType.NO_EXPECTED
-        elif passed:
+        if passed:
             return HeaderType.PASSED
-        else:
-            return HeaderType.FAILED
+        return HeaderType.FAILED
