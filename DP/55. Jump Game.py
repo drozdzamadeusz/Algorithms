@@ -31,7 +31,7 @@ class Solution:
 
 if __name__ == '__main__':
     test = Test(Solution().canJump, timeout=10000,
-                mode='equal_result', output='console_minimal')
+                mode='execution_time', output='console_minimal')
 
     test.add(True, [2, 3, 1, 1, 4])
     test.add(False, [3, 2, 1, 0, 4])
