@@ -30,7 +30,7 @@ class Solution:
 
 
 if __name__ == '__main__':
-    test = Test(Solution().canJump, timeout=10000,
+    test = Test(Solution().canJump, timeout=1000,
                 mode='execution_time', output='console_minimal')
 
     test.add(True, [2, 3, 1, 1, 4])
