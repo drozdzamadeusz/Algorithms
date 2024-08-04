@@ -1,104 +1,95 @@
+from ast import FunctionType
 import time
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
-from typing import Literal
-from _utils.TextBuilder import BIG_GAP, DEF_GAP, Gaps, TextBuilder
-from _utils.TextHeader import TextHeader
-from _utils.helpers import formatArgs
+from typing import Any, Callable, Literal
+from _utils.TextBuilder import BIG_GAP, Gaps, TextBuilder
+from _utils.TextHeader import HeaderType, TextHeader
 
 TIMEOUT_SEC = 10000
 
 UNSPECIFIED = "_UNSPECIFIED_"
-TEST_HALTED_MSG = '\n⛔️ TESTING HALTED'
-SUMMARY_MSG = '\n✓ Completed in {total_time:.2f} ms'
+TEST_HALTED_MSG = '⛔️ TESTING HALTED'
+SUMMARY_MSG = '✓ Completed in {total_time:.2f} ms'
 TESTS_NOT_RUN_MSG = '{not_run} {test_word} skipped after timeout!'
 INDEX_MSG = '[{idx}/{total}] '
 ELAPSED_MSG = ' {word} {elapsed:.{prec}f} ms'
 
 TOutputMode = Literal['console_default', 'console_compact']
-OUTPUT_MODE = 'console_default'
+OUTPUT_MODE_DEFAULT = 'console_default'
 
 TTestMode = Literal['equal_result', 'execution_time']
-TEST_MODE = 'equal_result'
+TEST_MODE_DEFAULT = 'equal_result'
+
+TTest = tuple[Any, tuple, dict[str, Any]]
 
 
 class Test:
     def __init__(self,
-                 fun=None,
+                 fun: Callable,
                  timeout: int | Literal[False] = TIMEOUT_SEC,
-                 mode: TTestMode = TEST_MODE,
-                 output: TOutputMode = OUTPUT_MODE) -> None:
+                 mode: TTestMode = TEST_MODE_DEFAULT,
+                 output: TOutputMode = OUTPUT_MODE_DEFAULT):
         self._fun = fun
         self._timeout = timeout
         self._mode = mode
         self._output_mode = output
 
         self._tests = []
-        self._totalElapsed = 0
 
-    def add(self, expect, *args, **kwargs) -> None:
+    def add(self, expect, *args, **kwargs):
         self._tests.append((expect, args, kwargs))
 
-    def run(self) -> None:
+    def run(self):
         self.__print_header()
 
-        idx, self._totalElapsed = 0, 0
-        for test in self._tests:
-            test_result, elapsed, timeout = self.__execute_test(test, idx)
+        totalElapsed = 0
+        for i, test in enumerate(self._tests):
+            result, elapsed, timeoutHalt = self.__execute_test(test)
+            totalElapsed += elapsed
 
-            self._totalElapsed += elapsed
+            idxStr = self.__indexFormat(i)
+            elapsedStr = self.__elapsedFormat(elapsed, timeoutHalt)
+            self.__print_result(result, test, idxStr, elapsedStr, timeoutHalt)
 
-            timeStr = ELAPSED_MSG.format(word="in", elapsed=elapsed, prec=2)
-            indexStr = self.__getIndex(idx)
-            self.__print_result(test_result, test, indexStr, timeStr, timeout)
+        self.__print_summary(totalElapsed)
 
-            idx += 1
-
-        self.__print_summary(self._totalElapsed)
-
-    def __print_result(self,
-                       result,
-                       test: tuple,
-                       headerPrefix="",
-                       headerSuffix="",
-                       timeout=False,
-                       *args) -> bool:
+    def __print_result(self, result, test: TTest, prefix, suffix, timeout) -> bool:
         expect, args, _ = test
-
         passed = result == expect
         noExpect = expect == UNSPECIFIED
-        performance = self._mode == 'execution_time'
-        headerType = TextHeader.parseHeaderType(
-            passed, noExpect, timeout, performance)
 
-        argsStr = (formatArgs(args) or "None") if args else ""
+        headerType = self.__headerType(passed, noExpect, timeout)
+        argsStr = (self.__formatArgs(args) or "None") if args else ""
 
-        argsLine = TextBuilder("Args:   ", True, 'grey',
-                               '', f'{argsStr}', BIG_GAP)
-        resLine = TextBuilder("Result: ", True, 'grey',
-                              '', f'{result}', BIG_GAP)
-        expLine = TextBuilder("Expect: ", True, 'grey', '',
-                              f'{expect if not noExpect else ""}', BIG_GAP)
+        builder = TextBuilder('', True, 'grey').gap(Gaps.L_BIG)
+        argsLine = builder.copy().text("Args:   ").suffix(f'{argsStr}')
+        resLine = builder.copy().text("Result: ").suffix(f'{result}')
+        expLine = builder.copy().text("Expect: ").suffix(f'{expect}')
 
-        TextBuilder().printEOL()
-        TextHeader(headerType, headerPrefix, headerSuffix).print()
+        TextHeader(headerType, prefix, suffix).textBuilder().printEOL().print()
 
+        # Do not display additional info if other mode is selected
         if self._mode in ['equal_result']:
-            if self._output_mode in ['console_default'] and\
-                    (not passed or noExpect) and args:
-                argsLine.print()                            # "Args" line in console
+            if (self._output_mode in ['console_default']
+                    and args and (not passed or noExpect)):
+                argsLine.print()                                # "Args" line in console
 
             if not timeout:
-                resLine.print()                             # "Result" line in console
+                resLine.print()                                 # "Result" line in console
 
-            if (not passed or timeout) and not noExpect:
-                expLine.print()                             # "Expect" line in console
+            if not noExpect and (not passed or timeout):
+                expLine.print()                                 # "Expect" line in console
 
         return passed or noExpect
 
-    def __getIndex(self, idx: str) -> str:
+    def __indexFormat(self, idx: str) -> str:
         return INDEX_MSG.format(idx=idx + 1, total=len(self._tests))
 
-    def __execute_test(self, test: tuple, idx: int) -> tuple:
+    def __elapsedFormat(self, elapsed: float, timeoutHalt: bool) -> str:
+        word = "after" if timeoutHalt else "in"
+        return ELAPSED_MSG.format(word=word, elapsed=elapsed, prec=2)
+
+    def __execute_test(self, test: TTest) -> tuple[Any, float, bool]:
         _, args, kwargs = test
 
         with ProcessPoolExecutor(max_workers=1) as executor:
@@ -118,36 +109,28 @@ class Test:
 
     def __print_summary(self, totalTime):
         summaryStr = SUMMARY_MSG.format(total_time=totalTime)
-        TextBuilder(summaryStr, True, 'white').print()
+        TextBuilder(summaryStr, True, 'white').printEOL().print()
 
     def __print_header(self):
         TextBuilder('Launching test engine...', True, 'white').printEOL().print().printEOL().text(
-            'Mode:   ').suffix(self._mode.capitalize()).print().text(
-            'Output: ').suffix(self._output_mode.capitalize()).print()
+            'Mode:    ').suffix(self._mode.capitalize()).print().text(
+            'Output:  ').suffix(self._output_mode.capitalize()).print().text(
+            'Timeout: ').suffix(f'{self._timeout} ms').print()
 
+    def __formatArgs(self, args: tuple):
+        res = f'{args}'[2:-3]
+        if res[-1] == ',':
+            res = res[:-1]
+        return res
 
-class TreeNode:
-    def __init__(self, val=0, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
-
-
-def build_tree(nodes: list[int]) -> TreeNode:
-    if not nodes:
-        return None
-    root = TreeNode(nodes[0])
-    queue = [root]
-    index = 1
-    while queue and index < len(nodes):
-        node = queue.pop(0)
-        if node:
-            if index < len(nodes) and nodes[index] is not None:
-                node.left = TreeNode(nodes[index])
-            queue.append(node.left)
-            index += 1
-            if index < len(nodes) and nodes[index] is not None:
-                node.right = TreeNode(nodes[index])
-            queue.append(node.right)
-            index += 1
-    return root
+    def __headerType(self, passed: bool, noExpect: bool, timeout: bool):
+        performance = self._mode == 'execution_time'
+        if timeout:
+            return HeaderType.TIMEOUT
+        if performance:
+            return HeaderType.PERFORMANCE
+        if noExpect:
+            return HeaderType.NO_EXPECTED
+        if passed:
+            return HeaderType.PASSED
+        return HeaderType.FAILED

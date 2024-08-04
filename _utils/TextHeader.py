@@ -17,39 +17,28 @@ class TextHeader:
         self._prefix = prefix
         self._suffix = suffix
         self._customText = customText
-        self._header = self.buildHeader()
+        self._textBuilder = self.__buildTextBuilder()
 
-    def buildHeader(self):
+    def __buildTextBuilder(self):
         defaultMessages = {
             HeaderType.DEFAULT: ("", None),
             HeaderType.PASSED: ("✅ PASSED", 'green'),
             HeaderType.FAILED: ("❌ FAILED", 'red'),
             HeaderType.NO_EXPECTED: ("ℹ️ EXPECTED RESULT UNKNOWN", 'blue'),
-            HeaderType.TIMEOUT: ("⏰ TIMEOUT", 'yellow'),
-            HeaderType.PERFORMANCE: ("✅ COMPLETED", 'green'),
+            HeaderType.TIMEOUT: ("⏰ HALTED", 'yellow'),
+            HeaderType.PERFORMANCE: ("✅ FINISHED", 'green'),
         }
 
         text, color = defaultMessages.get(self._headerType, ("", None))
         text = self._customText if self._customText else text
         return TextBuilder(f'{self._prefix}{text}', True, color).suffix(self._suffix)
 
-    def get(self) -> TextBuilder:
-        return self._header
+    def textBuilder(self) -> TextBuilder:
+        return self._textBuilder
 
     def build(self) -> str:
-        return self.get().build()
+        return self.textBuilder().build()
 
-    def print(self) -> None:
+    def print(self):
         print(self.build())
-
-    @staticmethod
-    def parseHeaderType(passed: bool, noExpect: bool, timeout: bool, performance: bool):
-        if timeout:
-            return HeaderType.TIMEOUT
-        if performance:
-            return HeaderType.PERFORMANCE
-        if noExpect:
-            return HeaderType.NO_EXPECTED
-        if passed:
-            return HeaderType.PASSED
-        return HeaderType.FAILED
+        return self

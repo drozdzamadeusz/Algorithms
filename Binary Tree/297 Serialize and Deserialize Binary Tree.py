@@ -1,5 +1,5 @@
 from typing import Deque
-from _utils import TreeNode
+from _utils.helpers import TreeNode
 
 
 class Codec:

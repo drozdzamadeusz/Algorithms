@@ -30,7 +30,8 @@ class Solution:
 
 
 if __name__ == '__main__':
-    test = Test(Solution().canJump, timeout=1000, mode='execution_time')
+    test = Test(Solution().canJump, timeout=1000,
+                mode='execution_time', output='console_compact')
 
     random.seed(10)
 
@@ -40,6 +41,6 @@ if __name__ == '__main__':
     for _ in range(8):
         size = random.randint(50000, 100000)
         array = [random.randint(0, 250) for _ in range(size)]
-        test.add(None, array)
+        test.add(True, array)
 
     test.run()

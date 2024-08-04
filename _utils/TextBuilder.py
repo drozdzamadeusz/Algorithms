@@ -1,3 +1,4 @@
+import copy
 from enum import Enum
 from typing import Literal
 from termcolor import colored
@@ -13,10 +14,10 @@ Color = Literal["red", "green", "yellow", "blue", "white", "grey"]
 
 
 class Gaps(Enum):
-    R_NORMAL = DEF_GAP
-    R_BIG = BIG_GAP
-    L_NORMAL = DEF_GAP
-    L_BIG = BIG_GAP
+    R_NORMAL = 0
+    R_BIG = 10
+    L_NORMAL = 1
+    L_BIG = 11
 
 
 class TextBuilder:
@@ -59,17 +60,19 @@ class TextBuilder:
         return self
 
     def gap(self, gap: Gaps):
-        if gap == Gaps.L_NORMAL or gap == Gaps.L_BIG:
-            self._leftGap = gap.value
-        elif gap == Gaps.R_NORMAL or gap == Gaps.R_BIG:
-            self._rightGap = gap.value
+        onLeft = gap.name[:1] == 'L'
+        val = DEF_GAP if gap.value < 10 else BIG_GAP
+        if onLeft:
+            self._leftGap = val
+        else:
+            self._rightGap = val
         return self
 
     def color(self, color: Color):
         self._color = color
         return self
 
-    def build(self):
+    def build(self) -> str:
         text = self._header if self._header else self._text
         if self._leftGap:
             text = f"{self._leftGap}{text}"
@@ -94,3 +97,6 @@ class TextBuilder:
     def printEOL(self):
         print(flush=True)
         return self
+
+    def copy(self):
+        return copy.copy(self)
