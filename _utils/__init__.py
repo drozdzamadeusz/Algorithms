@@ -14,7 +14,7 @@ TESTS_NOT_RUN_MSG = '{not_run} {test_word} skipped after timeout!'
 INDEX_MSG = '[{idx}/{total}] '
 ELAPSED_MSG = ' {word} {elapsed:.{prec}f} ms'
 
-TOutputMode = Literal['console_default', 'console_compact']
+TOutputMode = Literal['console_default', 'console_compact', 'console_minimal']
 OUTPUT_MODE_DEFAULT = 'console_default'
 
 TTestMode = Literal['equal_result', 'execution_time']
@@ -47,45 +47,40 @@ class Test:
             result, elapsed, timeoutHalt = self.__execute_test(test)
             totalElapsed += elapsed
 
-            idxStr = self.__indexFormat(i)
-            elapsedStr = self.__elapsedFormat(elapsed, timeoutHalt)
+            idxStr = self.__formatIndex(i)
+            elapsedStr = self.__formatElapsed(elapsed, timeoutHalt)
             self.__print_result(result, test, idxStr, elapsedStr, timeoutHalt)
 
         self.__print_summary(totalElapsed)
 
-    def __print_result(self, result, test: TTest, prefix, suffix, timeout) -> bool:
+    def __print_result(self, result, test: TTest, prefix, suffix, timeout):
         expect, args, _ = test
         passed = result == expect
         noExpect = expect == UNSPECIFIED
 
-        headerType = self.__headerType(passed, noExpect, timeout)
-        argsStr = (self.__formatArgs(args) or "None") if args else ""
+        headerType = self.__getHeaderType(passed, noExpect, timeout)
+        TextHeader(headerType, prefix, suffix).getBuilder().printEOL().print()
 
-        builder = TextBuilder('', True, 'grey').gap(Gaps.L_BIG)
-        argsLine = builder.copy().text("Args:   ").suffix(f'{argsStr}')
-        resLine = builder.copy().text("Result: ").suffix(f'{result}')
-        expLine = builder.copy().text("Expect: ").suffix(f'{expect}')
+        # Display additional info only if mode is set to equal_result
+        if self._mode not in ['equal_result']:
+            return
 
-        TextHeader(headerType, prefix, suffix).textBuilder().printEOL().print()
+        builder = TextBuilder("", True, 'grey').gap(Gaps.L_BIG)
 
-        # Do not display additional info if other mode is selected
-        if self._mode in ['equal_result']:
-            if (self._output_mode in ['console_default']
-                    and args and (not passed or noExpect)):
-                argsLine.print()                                # "Args" line in console
+        if not timeout:
+            builder.suffix(f'{result}').print("Result: ")
 
-            if not timeout:
-                resLine.print()                                 # "Result" line in console
+        if not noExpect and (not passed or timeout):
+            builder.suffix(f'{expect}').print('Expect: ')
 
-            if not noExpect and (not passed or timeout):
-                expLine.print()                                 # "Expect" line in console
+        if (self._output_mode in ['console_default', 'console_compact']
+           and args and (not passed or noExpect)):
+            builder.suffix(self.__formatArgs(args)).print("  Args: ")
 
-        return passed or noExpect
-
-    def __indexFormat(self, idx: str) -> str:
+    def __formatIndex(self, idx: str) -> str:
         return INDEX_MSG.format(idx=idx + 1, total=len(self._tests))
 
-    def __elapsedFormat(self, elapsed: float, timeoutHalt: bool) -> str:
+    def __formatElapsed(self, elapsed: float, timeoutHalt: bool) -> str:
         word = "after" if timeoutHalt else "in"
         return ELAPSED_MSG.format(word=word, elapsed=elapsed, prec=2)
 
@@ -109,21 +104,41 @@ class Test:
 
     def __print_summary(self, totalTime):
         summaryStr = SUMMARY_MSG.format(total_time=totalTime)
-        TextBuilder(summaryStr, True, 'white').printEOL().print()
+        TextBuilder(summaryStr, True, 'white').printEOL().print().printEOL()
 
     def __print_header(self):
-        TextBuilder('Launching test engine...', True, 'white').printEOL().print().printEOL().text(
-            'Mode:    ').suffix(self._mode.capitalize()).print().text(
-            'Output:  ').suffix(self._output_mode.capitalize()).print().text(
-            'Timeout: ').suffix(f'{self._timeout} ms').print()
+        TextBuilder('Launching test engine...', True, 'white').printEOL().print().printEOL(
+        ).text('Mode:    ').suffix(self._mode.capitalize()).print(
+        ).text('Output:  ').suffix(self._output_mode.capitalize()).print(
+        ).text('Timeout: ').suffix(f'{self._timeout} ms').print()
 
     def __formatArgs(self, args: tuple):
-        res = f'{args}'[2:-3]
-        if res[-1] == ',':
-            res = res[:-1]
-        return res
+        if not args:
+            return ""
 
-    def __headerType(self, passed: bool, noExpect: bool, timeout: bool):
+        if self._output_mode in ['console_compact']:
+            return f'{args}'[1:-1]
+
+        result = ''
+        builder_value = TextBuilder("").suffix('\n')
+        builder_index = TextBuilder('', True, 'grey')
+        for i, arg in enumerate(args):
+            builder_value.text(f'{arg}')
+            builder_value.color('white' if i % 2 == 0 else 'light_cyan')
+
+            if i + 1 == len(args):
+                builder_value.suffix("")
+
+            builder_index.text(f'{i + 1}: ')
+
+            if i == 1:
+                builder_index.prefix('                 ')
+
+            result += builder_index.build() + builder_value.build()
+
+        return result
+
+    def __getHeaderType(self, passed: bool, noExpect: bool, timeout: bool):
         performance = self._mode == 'execution_time'
         if timeout:
             return HeaderType.TIMEOUT

@@ -33,11 +33,11 @@ class TextHeader:
         text = self._customText if self._customText else text
         return TextBuilder(f'{self._prefix}{text}', True, color).suffix(self._suffix)
 
-    def textBuilder(self) -> TextBuilder:
+    def getBuilder(self) -> TextBuilder:
         return self._textBuilder
 
     def build(self) -> str:
-        return self.textBuilder().build()
+        return self.getBuilder().build()
 
     def print(self):
         print(self.build())

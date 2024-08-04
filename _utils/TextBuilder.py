@@ -21,27 +21,14 @@ class Gaps(Enum):
 
 
 class TextBuilder:
-    def __init__(self,
-                 text="",
-                 bold=False,
-                 color: Color = None,
-                 prefix: str = None,
-                 suffix: str = None,
-                 leftGap=None,
-                 rightGap=None,
-                 header=None):
+    def __init__(self, text, bold=False, color: Color = None, prefix="", suffix=""):
         self._text = text
         self._bold = bold
         self._color = color
         self._prefix = prefix
         self._suffix = suffix
-        self._leftGap = leftGap
-        self._rightGap = rightGap
-        self._header = header
-
-    def header(self, header):
-        self._header = header
-        return self
+        self._leftGap = None
+        self._rightGap = None
 
     def text(self, text: str):
         self._text = text
@@ -55,13 +42,14 @@ class TextBuilder:
         self._suffix = suffix
         return self
 
-    def bold(self):
-        self._bold = True
+    def bold(self, bold=True):
+        self._bold = bold
         return self
 
     def gap(self, gap: Gaps):
         onLeft = gap.name[:1] == 'L'
         val = DEF_GAP if gap.value < 10 else BIG_GAP
+
         if onLeft:
             self._leftGap = val
         else:
@@ -73,7 +61,7 @@ class TextBuilder:
         return self
 
     def build(self) -> str:
-        text = self._header if self._header else self._text
+        text = self._text
         if self._leftGap:
             text = f"{self._leftGap}{text}"
         if self._bold:
