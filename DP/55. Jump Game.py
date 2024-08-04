@@ -31,14 +31,15 @@ class Solution:
 
 if __name__ == '__main__':
     test = Test(Solution().canJump, timeout=10000,
-                mode='execution_time', output='console_minimal')
-
-    random.seed(10)
+                mode='equal_result', output='console_minimal')
 
     test.add(True, [2, 3, 1, 1, 4])
-    test.add(True, [3, 2, 1, 0, 4])
+    test.add(False, [3, 2, 1, 0, 4])
+    test.add(False, [2, 3, 1, 1, 4])
+    test.add(False, [3, 2, 1, 0, 4])
 
-    for _ in range(8):
+    random.seed(10)
+    for _ in range(6):
         size = random.randint(50000, 100000)
         array = [random.randint(0, 250) for _ in range(size)]
         test.add(True, array)

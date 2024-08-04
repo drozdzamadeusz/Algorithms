@@ -1,8 +1,7 @@
-from ast import FunctionType
 import time
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from typing import Any, Callable, Literal
-from _utils.TextBuilder import BIG_GAP, Gaps, TextBuilder
+from _utils.TextBuilder import Gaps, TextBuilder
 from _utils.TextHeader import HeaderType, TextHeader
 
 TIMEOUT_SEC = 10000
@@ -11,7 +10,7 @@ UNSPECIFIED = "_UNSPECIFIED_"
 TEST_HALTED_MSG = '⛔️ TESTING HALTED'
 SUMMARY_MSG = '✓ Completed in {total_time:.2f} ms'
 TESTS_NOT_RUN_MSG = '{not_run} {test_word} skipped after timeout!'
-INDEX_MSG = '[{idx}/{total}] '
+INDEX_MSG = '{offset}[{idx}/{total}] '
 ELAPSED_MSG = ' {word} {elapsed:.{prec}f} ms'
 
 TOutputMode = Literal['console_default', 'console_compact', 'console_minimal']
@@ -35,9 +34,12 @@ class Test:
         self._output_mode = output
 
         self._tests = []
+        self._leftColumnOffset = 0
 
     def add(self, expect, *args, **kwargs):
         self._tests.append((expect, args, kwargs))
+        leftOffset = len(f'{len(self._tests)}')
+        self._leftColumnOffset = leftOffset * 2 + 3
 
     def run(self):
         self.__print_header()
@@ -65,7 +67,8 @@ class Test:
         if self._mode not in ['equal_result']:
             return
 
-        builder = TextBuilder("", True, 'grey').gap(Gaps.L_BIG)
+        builder = TextBuilder("", True, 'grey').gapLeft(
+            Gaps.BIG, self._leftColumnOffset)
 
         if not (self._output_mode in ['console_minimal'] and passed):
             if not timeout:
@@ -78,8 +81,12 @@ class Test:
             if args and (not passed or noExpect):
                 builder.suffix(self.__formatArgs(args)).print("  Args: ")
 
-    def __formatIndex(self, idx: str) -> str:
-        return INDEX_MSG.format(idx=idx + 1, total=len(self._tests))
+    def __formatIndex(self, idx: int) -> str:
+        total = len(self._tests)
+        idx += 1
+        offset_count = len(f'{total}') - len(f'{idx}')
+        offset = ' ' * offset_count
+        return INDEX_MSG.format(offset=offset, idx=idx, total=total)
 
     def __formatElapsed(self, elapsed: float, timeoutHalt: bool) -> str:
         word = "after" if timeoutHalt else "in"
@@ -133,7 +140,7 @@ class Test:
                 builder_value.suffix("")
 
             if i == 1:
-                builder_index.gap(Gaps.L_HUGE)
+                builder_index.gapLeft(Gaps.HUGE, self._leftColumnOffset)
 
             result += builder_index.build() + builder_value.build()
 

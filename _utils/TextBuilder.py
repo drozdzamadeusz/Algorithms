@@ -5,31 +5,14 @@ from termcolor import colored
 
 
 DEF_TIMEOUT = 5000
-
 UNSPECIFIED = "_UNSPECIFIED_"
-DEF_GAP = "   "
-BIG_GAP = "         "
-HUGE_GAP = "                 "
+
+BASE_OFFSET_LEFT_COL = 5
 
 
 class Gaps(Enum):
-    R_NORMAL = 10
-    L_NORMAL = 11
-    R_BIG = 20
-    L_BIG = 21
-    R_HUGE = 30
-    L_HUGE = 31
-
-
-def parseGap(gap: Gaps):
-    vals = {
-        'NORMAL': DEF_GAP,
-        'BIG': BIG_GAP,
-        'HUGE': HUGE_GAP
-    }
-    pos = gap.name[:1]
-    value = vals[gap.name[2:]]
-    return (pos, value)
+    BIG = ' ' * 4
+    HUGE = ' ' * 12
 
 
 Color = Literal["red", "green", "yellow", "blue", "white", "grey"]
@@ -61,12 +44,8 @@ class TextBuilder:
         self._bold = bold
         return self
 
-    def gap(self, gap: Gaps):
-        pos, val = parseGap(gap)
-        if pos == 'L':
-            self._leftGap = val
-        elif pos == 'R':
-            self._rightGap = val
+    def gapLeft(self, gap: Gaps, leftColumnOffset: int = BASE_OFFSET_LEFT_COL):
+        self._leftGap = gap.value + ' ' * leftColumnOffset
         return self
 
     def color(self, color: Color):
