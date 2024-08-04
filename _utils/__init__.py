@@ -67,15 +67,16 @@ class Test:
 
         builder = TextBuilder("", True, 'grey').gap(Gaps.L_BIG)
 
-        if not timeout:
-            builder.suffix(f'{result}').print("Result: ")
+        if not (self._output_mode in ['console_minimal'] and passed):
+            if not timeout:
+                builder.suffix(f'{result}').print("Result: ")
 
         if not noExpect and (not passed or timeout):
             builder.suffix(f'{expect}').print('Expect: ')
 
-        if (self._output_mode in ['console_default', 'console_compact']
-           and args and (not passed or noExpect)):
-            builder.suffix(self.__formatArgs(args)).print("  Args: ")
+        if self._output_mode in ['console_default', 'console_compact']:
+            if args and (not passed or noExpect):
+                builder.suffix(self.__formatArgs(args)).print("  Args: ")
 
     def __formatIndex(self, idx: str) -> str:
         return INDEX_MSG.format(idx=idx + 1, total=len(self._tests))
@@ -120,19 +121,19 @@ class Test:
             return f'{args}'[1:-1]
 
         result = ''
-        builder_value = TextBuilder("").suffix('\n')
-        builder_index = TextBuilder('', True, 'grey')
+        builder_index = TextBuilder().bold()
+        builder_value = TextBuilder().suffix('\n')
+
         for i, arg in enumerate(args):
-            builder_value.text(f'{arg}')
-            builder_value.color('white' if i % 2 == 0 else 'light_cyan')
+            color = 'white' if i % 2 == 0 else 'light_cyan'
+            builder_index.text(f'{i + 1}: ').color(color)
+            builder_value.text(f'{arg}').color(color)
 
             if i + 1 == len(args):
                 builder_value.suffix("")
 
-            builder_index.text(f'{i + 1}: ')
-
             if i == 1:
-                builder_index.prefix('                 ')
+                builder_index.gap(Gaps.L_HUGE)
 
             result += builder_index.build() + builder_value.build()
 
