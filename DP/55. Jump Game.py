@@ -31,7 +31,7 @@ class Solution:
 
 if __name__ == '__main__':
     test = Test(Solution().canJump, timeout=1000,
-                mode='equal_result', output='console_minimal')
+                mode='execution_time', output='console_minimal')
 
     random.seed(10)
 
